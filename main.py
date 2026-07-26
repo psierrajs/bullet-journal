@@ -19,6 +19,10 @@ if not journal_file.exists():
             encoding="utf-8"
 		)
 
-	print(f"Created journal: {journal_file}")
-else:
-	print(f"Journal already exists: {journal_file}")
+task = input("Enter a new task: ")
+
+with journal_file.open("a", encoding="utf-8") as file:
+	file.write(f"- [ ] {task}\n")
+
+
+print(f'Task added: "{task}"')
