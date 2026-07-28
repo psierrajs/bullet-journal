@@ -19,32 +19,65 @@ if not journal_file.exists():
             encoding="utf-8"
 		)
 
-task = input("Enter a new task: ")
-
 content = journal_file.read_text(encoding="utf-8")
 
 tasks_header = "## Tasks\n"
-
-task_line = f"- [ ] {task}\n"
+notes_header = "## Notes"
 
 tasks_start = content.find(tasks_header)
+notes_start = content.find(notes_header, tasks_start)
 
-if tasks_start == 1:
+if tasks_start == -1:
     print("Error: Tasks section not found.")
-else:
-    insert_position = content.find("## Notes", tasks_start)
 
-    if insert_position == -1:
-        print("Error: Notes section not found.")
+elif notes_start == -1:
+    print("Error: Notes section not found.")
+
+else: 
+    tasks_section = content[
+        tasks_start + len(tasks_header): notes_start
+    ]
+
+    task_lines = []
+
+    for line in tasks_section.splitlines():
+        if line.startswith("- ["):
+            task_lines.append(line)
+
+    print("\nToday's tasks:\n")
+
+    if not task_lines:
+        print("No tasks yet.")
     else:
-        before_notes = content[:insert_position].rstrip()
-        after_notes = content[insert_position:]
+        for number, task_line in enumerate(task_lines, start=1):
+            print(f"{number}. {task_line}")
 
-        new_content = before_notes + "\n" + task_line + "\n" + after_notes
+    task = input("\nEnter a new task: ").strip()
 
-        journal_file.write_text(new_content, encoding="utf-8")
+    if not task:
+        print("No task entered. Nothing was added.")
+    else:
+        task_line = f"- [ ] {task}\n"
+
+        before_notes = content[:notes_start].rstrip()
+        after_notes = content[notes_start:]
+
+        new_content = (
+            before_notes
+            + "\n"
+        + task_line 
+        + "\n"
+        + after_notes
+        )
+
+        journal_file.write_text(
+            new_content,
+            encoding="utf-8"
+        )
 
         print(f'Task added: "{task}"')
+
+
 
 
 
