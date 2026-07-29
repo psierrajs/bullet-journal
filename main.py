@@ -37,6 +37,33 @@ def display_tasks(task_lines):
     for number, task_line in enumerate(task_lines, start=1):
         print(f"{number}. {task_line}")
 
+def add_task(content, notes_start, journal_file):
+    task = input("Enter a new task: ").strip()
+
+    if not task:
+        print("No task entered, Nothing was added.")
+        return
+
+    task_line = f"- [ ] {task}\n"
+
+    before_notes = content[:notes_start].rstrip()
+    after_notes = content[notes_start:]
+
+    new_content = (
+        before_notes
+        + "\n"
+        + task_line
+        + "\n"
+        + after_notes
+    )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
+    print(f'Task added: "{task}"')
+
 today = date.today()
 filename = f"{today.isoformat()}.md"
 
@@ -81,11 +108,7 @@ while True:
 
     print("\nToday's tasks:\n")
 
-    if not task_lines:
-        print("No tasks yet.")
-    else:
-        for number, task_line in enumerate(task_lines, start=1):
-            print(f"{number}. {task_line}")
+    display_tasks(task_lines)
 
     print("\nChoose an option:")
     print("1. Add a task")
@@ -99,31 +122,7 @@ while True:
     choice = input("\nOption: ").strip()
 
     if choice == "1":
-        task = input("Enter a new task: ").strip()
-
-        if not task:
-            print("No task entered. Nothing was added.")
-            continue
-
-        task_line = f"- [ ] {task}\n"
-
-        before_notes = content[:notes_start].rstrip()
-        after_notes = content[notes_start:]
-
-        new_content = (
-            before_notes
-            + "\n"
-            + task_line
-            + "\n"
-            + after_notes
-        )
-
-        journal_file.write_text(
-            new_content,
-            encoding="utf-8"
-        )
-
-        print(f'Task added: "{task}"')
+        add_task(content, notes_start, journal_file)
 
     elif choice == "2":
         if not task_lines:
