@@ -65,6 +65,10 @@ while True:
 
     task_lines = get_task_lines(content)
 
+    if task_lines is None:
+        print("Error: Invalid journal structure.")
+        break
+
     print("\nToday's tasks:\n")
 
     if not task_lines:
@@ -231,7 +235,7 @@ while True:
 
         new_content = (
             before_events
-            + "|\n"
+            + "\n"
             + note_line
             + "\n"
             + after_events
