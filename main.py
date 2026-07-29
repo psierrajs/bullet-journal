@@ -59,7 +59,8 @@ while True:
     print("\nChoose an option:")
     print("1. Add a task")
     print("2. Complete a task")
-    print("3. Exit")
+    print("3. Reopen a task")
+    print("4. Exit")
 
     choice = input("\nOption: ").strip()
 
@@ -136,6 +137,52 @@ while True:
         print(f"Completed: {completed_task}")
 
     elif choice == "3":
+        if not task_lines:
+            print("There are no tasks to reopen.")
+            continue
+
+        task_number_text = input(
+            "Enter the number of the task to reopen: "
+        ).strip()
+
+        if not task_number_text.isdigit():
+            print("Please enter a valid number.")
+            continue
+
+        task_number = int(task_number_text)
+
+        if task_number < 1 or task_number > len(task_lines):
+            print("That task number does not exist.")
+            continue
+
+        selected_task = task_lines[task_number - 1]
+
+        if not selected_task.lower().startswith("- [x]"):
+            print("\nThat task is already open.")
+            input("Press Enter to continue...")
+            continue
+
+        reopened_task = selected_task.replace(
+            "- [x]",
+            "- [ ]",
+            1
+        )
+
+        new_content = content.replace(
+            selected_task,
+            reopened_task,
+            1
+        )
+
+        journal_file.write_text(
+            new_content,
+            encoding="utf-8"
+        )
+
+        print(f"\nReopened: {reopened_task}")
+        input("Press Enter to continue...")
+
+    elif choice == "4":
         print("Goodbye.")
         break
 
