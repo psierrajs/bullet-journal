@@ -1,6 +1,31 @@
 from pathlib import Path
 from datetime import date
 
+def get_task_lines(content):
+    tasks_header = "## Tasks\n"
+    notes_header = "## Notes"
+
+    tasks_start = content.find(tasks_header)
+
+    if tasks_start == -1:
+        return None
+
+    notes_start = content.find(notes_header, tasks_start)
+
+    if notes_start == -1:
+        return None
+
+    tasks_section = content[
+        tasks_start + len(tasks_header):notes_start
+    ]
+
+    task_lines = []
+
+    for line in tasks_section.splitlines():
+        if line.startswith("- ["):
+            task_lines.append(line)
+
+    return task_lines
 
 today = date.today()
 filename = f"{today.isoformat()}.md"
@@ -38,15 +63,7 @@ while True:
         print("Error: Notes section not found.")
         break
 
-    tasks_section = content[
-        tasks_start + len(tasks_header):notes_start
-    ]
-
-    task_lines = []
-
-    for line in tasks_section.splitlines():
-        if line.startswith("- ["):
-            task_lines.append(line)
+    task_lines = get_task_lines(content)
 
     print("\nToday's tasks:\n")
 
