@@ -61,7 +61,8 @@ while True:
     print("2. Complete a task")
     print("3. Reopen a task")
     print("4. Add a note")
-    print("5. Exit")
+    print("5. Add an event")
+    print("6. Exit")
 
     choice = input("\nOption: ").strip()
 
@@ -217,6 +218,25 @@ while True:
         print(f'Note added: "{note}"')
 
     elif choice == "5":
+        event = input("Enter a new event: ").strip()
+
+        if not event:
+            print("No event entered. Nothing was added.")
+            continue
+
+        event_line = f"- {event}\n"
+
+        current_content = journal_file.read_text(encoding="utf-8")
+        new_content = current_content.rstrip() + "\n" + event_line
+
+        journal_file.write_text(
+            new_content,
+            encoding="utf-8"
+        )
+
+        print(f'Event added: "{event}"')
+
+    elif choice == "6":
         print("Goodbye.")
         break
 
