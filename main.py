@@ -62,7 +62,8 @@ while True:
     print("3. Reopen a task")
     print("4. Add a note")
     print("5. Add an event")
-    print("6. Exit")
+    print("6. Cancel a task")
+    print("7. Exit")
 
     choice = input("\nOption: ").strip()
 
@@ -237,6 +238,57 @@ while True:
         print(f'Event added: "{event}"')
 
     elif choice == "6":
+        if not task_lines:
+            print("There are no tasks to cancel.")
+            continue
+
+        task_number_text = input(
+            "Enter the number of the task to cancel: "
+            ).strip()
+
+        if not task_number_text.isdigit():
+            print("Please enter a valid number.")
+            continue
+
+        task_number = int(task_number_text)
+
+        if task_number < 1 or task_number > len(task_lines):
+            print("That task number does not exist.")
+            continue
+
+        selected_task = task_lines[task_number - 1]
+
+        if selected_task.startswith("- [-]"):
+            print("\nThe task is already cancelled.")
+            input("Press enter to continue...")
+            continue
+
+        if selected_task.lower().startswith("- [x]"):
+            print("\nA completed task cannot be cancelled.")
+            input("Press enter to continue...")
+            continue
+
+        cancelled_task = selected_task.replace(
+            "- [ ]",
+            "- [-]",
+            1
+        )
+
+        new_content = content.replace(
+            selected_task,
+            cancelled_task,
+            1
+        )
+
+        journal_file.write_text(
+            new_content,
+            encoding="utf-8"
+        )
+
+        print(f"\nCancelled: {cancelled_task}")
+        input("Press Enter to continue...")
+
+    elif choice == "7":
         print("Goodbye.")
         break
 
