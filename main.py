@@ -160,15 +160,24 @@ while True:
 
         selected_task = task_lines[task_number - 1]
 
-        if not selected_task.lower().startswith("- [x]"):
-            print("\nThat task is already open.")
-            continue
+        if selected_task.lower().startswith("- [x]"):
+            reopened_task = selected_task.replace(
+                "- [x]",
+                "- [ ]",
+                1
+            )
 
-        reopened_task = selected_task.replace(
-            "- [x]",
-            "- [ ]",
-            1
-        )
+        elif selected_task.lower().startswith("- [-]"):
+            reopened_task = selected_task.replace(
+                "- [-]",
+                "- [ ]",
+                1
+            )
+
+        else:
+            print("\nThat task is already open.")
+            input("Press Enter to continue...")
+            continue
 
         new_content = content.replace(
             selected_task,
