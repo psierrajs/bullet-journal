@@ -27,6 +27,16 @@ def get_task_lines(content):
 
     return task_lines
 
+def display_tasks(task_lines):
+    print("\nToday's tasks:\n")
+
+    if not task_lines:
+        print("No tasks yet.")
+        return
+
+    for number, task_line in enumerate(task_lines, start=1):
+        print(f"{number}. {task_line}")
+
 today = date.today()
 filename = f"{today.isoformat()}.md"
 
