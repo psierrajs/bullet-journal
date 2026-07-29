@@ -64,6 +64,55 @@ def add_task(content, notes_start, journal_file):
 
     print(f'Task added: "{task}"')
 
+def completed_task(content, task_lines, journal_file):
+    if not task_lines:
+        print("There are no tasks to complete.")
+        return
+
+    task_number_text = input(
+        "Enter the number of the completed task: "
+        ).strip()
+
+    if not task_number_text.isdigit():
+        print("Please enter a valid number.")
+        return
+
+    task_number = int(task_number_text)
+
+    if task_number < 1 or task_number > len(task_lines):
+        print("That task number does not exist.")
+        return
+
+    selected_task = task_lines[task_number - 1]
+
+    if selected_task.lower().startswith("- [x]"):
+        print("That task is already completed.")
+        input("Press Enter to continue...")
+        return
+
+    if selected_task.startswith("- [-]"):
+        print("A cancelled task must be reopened first.")
+        input("Press Enter to continue...")
+        return
+
+    completed_task = selected_task.replace(
+        "- [ ]",
+        "- [x]",
+        1)
+
+    new_content = content.replace(
+        selected_task,
+        completed_task,
+        1
+    )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
+    print(f"Completed: {completed_task}")
+
 today = date.today()
 filename = f"{today.isoformat()}.md"
 
@@ -125,49 +174,7 @@ while True:
         add_task(content, notes_start, journal_file)
 
     elif choice == "2":
-        if not task_lines:
-            print("There are no tasks to complete.")
-            continue
-
-        task_number_text = input(
-            "Enter the number of the completed task: "
-        ).strip()
-
-        if not task_number_text.isdigit():
-            print("Please enter a valid number.")
-            continue
-
-        task_number = int(task_number_text)
-
-        if task_number < 1 or task_number > len(task_lines):
-            print("That task number does not exist.")
-            continue
-
-        selected_task = task_lines[task_number - 1]
-
-        if selected_task.startswith("- [x]"):
-            print("That task is already completed.")
-            input("Press enter to continue.")
-            continue
-
-        completed_task = selected_task.replace(
-            "- [ ]",
-            "- [x]",
-            1
-        )
-
-        new_content = content.replace(
-            selected_task,
-            completed_task,
-            1
-        )
-
-        journal_file.write_text(
-            new_content,
-            encoding="utf-8"
-        )
-
-        print(f"Completed: {completed_task}")
+        completed_task(content, task_lines, journal_file)
 
     elif choice == "3":
         if not task_lines:
