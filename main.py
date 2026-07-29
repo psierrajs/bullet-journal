@@ -60,7 +60,8 @@ while True:
     print("1. Add a task")
     print("2. Complete a task")
     print("3. Reopen a task")
-    print("4. Exit")
+    print("4. Add a note")
+    print("5. Exit")
 
     choice = input("\nOption: ").strip()
 
@@ -159,7 +160,6 @@ while True:
 
         if not selected_task.lower().startswith("- [x]"):
             print("\nThat task is already open.")
-            input("Press Enter to continue...")
             continue
 
         reopened_task = selected_task.replace(
@@ -183,6 +183,40 @@ while True:
         input("Press Enter to continue...")
 
     elif choice == "4":
+        note = input("Enter a new note: ").strip()
+
+        if not note:
+            print("No note entered. Nothing was added.")
+            continue
+
+        events_header = "## Events"
+        events_start = content.find(events_header, notes_start)
+
+        if events_start == -1:
+            print("Error: Events section not found.")
+            continue
+
+        note_line = f"- {note}\n"
+
+        before_events = content[:events_start].rstrip()
+        after_events = content[events_start:]
+
+        new_content = (
+            before_events
+            + "|\n"
+            + note_line
+            + "\n"
+            + after_events
+        )
+
+        journal_file.write_text(
+            new_content,
+            encoding="utf-8"
+        )
+
+        print(f'Note added: "{note}"')
+
+    elif choice == "5":
         print("Goodbye.")
         break
 
