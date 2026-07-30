@@ -90,21 +90,12 @@ def add_task(content, notes_start, journal_file):
 
     task_line = f"- [ ] {task}\n"
 
-    before_notes = content[:notes_start].rstrip()
-    after_notes = content[notes_start:]
-
-    new_content = (
-        before_notes
-        + "\n"
-        + task_line
-        + "\n"
-        + after_notes
-    )
-
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
-    )
+    insert_before_section(
+    content,
+    notes_start,
+    task_line,
+    journal_file
+)
 
     print(f'Task added: "{task}"')
 
@@ -244,21 +235,12 @@ def add_note(content, events_start, journal_file):
 
     note_line = f"- {note}\n"
 
-    before_events = content[:events_start].rstrip()
-    after_events = content[events_start:]
-
-    new_content = (
-        before_events
-        + "\n"
-        + note_line
-        + "\n"
-        + after_events
-    )
-
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
-    )
+    insert_before_section(
+    content,
+    events_start,
+    note_line,
+    journal_file
+)
 
     print(f'Note added: "{note}"')
 
@@ -291,6 +273,28 @@ def create_daily_journal(journal_file, today):
         "## Notes\n\n"
         "## Events\n",
         encoding="utf-8"        
+    )
+
+def insert_before_section(
+    content,
+    section_start,
+    new_line,
+    journal_file
+):
+    before_section = content[:section_start].rstrip()
+    after_section = content[section_start:]
+
+    new_content = (
+        before_section
+        + "\n"
+        + new_line
+        + "\n"
+        + after_section
+    )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
     )
 
 def main():
