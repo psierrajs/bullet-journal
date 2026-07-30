@@ -216,6 +216,41 @@ def cancel_task(content, task_lines, journal_file):
     print(f"\nCancelled: {cancelled_task}")
     input("Press Enter to continue...")
 
+def add_note(content, notes_start, journal_file):
+    note = input("Enter a new note: ").strip()
+
+    if not note:
+        print("No note entered. Nothing was added.")
+        return
+
+    events_header = "## Events"
+    events_start = content.find(events_header, notes_start)
+
+    if events_start == -1:
+        print("Error: Events section not found.")
+        return
+
+    note_line = f"- {note}\n"
+
+    before_events = content[:events_start].rstrip()
+    after_events = content[events_start:]
+
+    new_content = (
+        before_events
+        + "\n"
+        + note_line
+        + "\n"
+        + after_events
+    )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
+    print(f'Note added: "{note}"')
+
+
 today = date.today()
 filename = f"{today.isoformat()}.md"
 
@@ -283,38 +318,7 @@ while True:
         reopen_task(content, task_lines,journal_file)
 
     elif choice == "4":
-        note = input("Enter a new note: ").strip()
-
-        if not note:
-            print("No note entered. Nothing was added.")
-            continue
-
-        events_header = "## Events"
-        events_start = content.find(events_header, notes_start)
-
-        if events_start == -1:
-            print("Error: Events section not found.")
-            continue
-
-        note_line = f"- {note}\n"
-
-        before_events = content[:events_start].rstrip()
-        after_events = content[events_start:]
-
-        new_content = (
-            before_events
-            + "\n"
-            + note_line
-            + "\n"
-            + after_events
-        )
-
-        journal_file.write_text(
-            new_content,
-            encoding="utf-8"
-        )
-
-        print(f'Note added: "{note}"')
+        add_note(content, notes_start, journal_file)
 
     elif choice == "5":
         event = input("Enter a new event: ").strip()
