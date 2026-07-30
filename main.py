@@ -244,6 +244,14 @@ def add_note(content, events_start, journal_file):
 
     print(f'Note added: "{note}"')
 
+def append_line(content, new_line, journal_file):
+    new_content = content.rstrip() + "\n" + new_line
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
 def add_event(content, journal_file):
     event = input("Enter a new event: ").strip()
 
@@ -253,12 +261,10 @@ def add_event(content, journal_file):
 
     event_line = f"- {event}\n"
 
-    current_content = journal_file.read_text(encoding="utf-8")
-    new_content = current_content.rstrip() + "\n" + event_line
-
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+    append_line(
+        content,
+        event_line,
+        journal_file
     )
 
     print(f'Event added: "{event}"')
