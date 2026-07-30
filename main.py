@@ -37,6 +37,34 @@ def display_tasks(task_lines):
     for number, task_line in enumerate(task_lines, start=1):
         print(f"{number}. {task_line}")
 
+def display_menu():
+    print("\nChoose an option:")
+    print("1. Add a task")
+    print("2. Complete a task")
+    print("3. Reopen a task")
+    print("4. Add a note")
+    print("5. Add an event")
+    print("6. Cancel a task")
+    print("7. Exit")
+
+def select_task(task_lines, prompt):
+    if not task_lines:
+        return None
+
+    task_number_text = input(prompt).strip()
+
+    if not task_number_text.isdigit():
+        print("Please enter a valid number.")
+        return None
+
+    task_number = int(task_number_text)
+
+    if task_number < 1 or task_number > len(task_lines):
+        print("That task number does not exist.")
+        return None
+
+    return task_lines[task_number -1]
+
 def add_task(content, notes_start, journal_file):
     task = input("Enter a new task: ").strip()
 
@@ -64,26 +92,18 @@ def add_task(content, notes_start, journal_file):
 
     print(f'Task added: "{task}"')
 
-def completed_task(content, task_lines, journal_file):
+def complete_task(content, task_lines, journal_file):
     if not task_lines:
         print("There are no tasks to complete.")
         return
 
-    task_number_text = input(
+    selected_task = select_task(
+        task_lines,
         "Enter the number of the completed task: "
-        ).strip()
+    )
 
-    if not task_number_text.isdigit():
-        print("Please enter a valid number.")
+    if selected_task is None:
         return
-
-    task_number = int(task_number_text)
-
-    if task_number < 1 or task_number > len(task_lines):
-        print("That task number does not exist.")
-        return
-
-    selected_task = task_lines[task_number - 1]
 
     if selected_task.lower().startswith("- [x]"):
         print("That task is already completed.")
@@ -115,24 +135,16 @@ def completed_task(content, task_lines, journal_file):
 
 def reopen_task(content, task_lines, journal_file):
     if not task_lines:
-        print("There are no tasks to reopen")
+        print("There are no tasks to reopen.")
         return
 
-    task_number_text = input(
+    selected_task = select_task(
+        task_lines,
         "Enter the number of the task to reopen: "
-    ).strip()
+    )
 
-    if not task_number_text.isdigit():
-        print("Please enter a valid number.")
+    if selected_task is None:
         return
-
-    task_number = int(task_number_text)
-
-    if task_number < 1 or task_number > len(task_lines):
-        print("That task number does not exist.")
-        return
-
-    selected_task = task_lines[task_number - 1]
 
     if selected_task.lower().startswith("- [x]"):
         reopened_task = selected_task.replace(
@@ -150,12 +162,13 @@ def reopen_task(content, task_lines, journal_file):
 
     else:
         print("That task is already open.")
-        input("Press Enter to continue")
+        input("Press Enter to continue...")
         return
 
     new_content = content.replace(
         selected_task,
-        reopened_task,1
+        reopened_task,
+        1
     )
 
     journal_file.write_text(
@@ -170,30 +183,22 @@ def cancel_task(content, task_lines, journal_file):
         print("There are no tasks to cancel.")
         return
 
-    task_number_text = input(
+    selected_task = select_task(
+        task_lines,
         "Enter the number of the task to cancel: "
-        ).strip()
+    )
 
-    if not task_number_text.isdigit():
-        print("Please enter a valid number.")
+    if selected_task is None:
         return
-
-    task_number = int(task_number_text)
-
-    if task_number < 1 or task_number > len(task_lines):
-        print("That task number does not exist.")
-        return
-
-    selected_task = task_lines[task_number - 1]
 
     if selected_task.startswith("- [-]"):
-        print("\nThe task is already cancelled.")
-        input("Press enter to continue...")
+        print("That task is already cancelled.")
+        input("Press Enter to continue...")
         return
 
     if selected_task.lower().startswith("- [x]"):
-        print("\nA completed task cannot be cancelled.")
-        input("Press enter to continue...")
+        print("A completed task cannot be cancelled.")
+        input("Press Enter to continue...")
         return
 
     cancelled_task = selected_task.replace(
@@ -213,8 +218,7 @@ def cancel_task(content, task_lines, journal_file):
         encoding="utf-8"
     )
 
-    print(f"\nCancelled: {cancelled_task}")
-    input("Press Enter to continue...")
+    print(f"Cancelled: {cancelled_task}")
 
 def add_note(content, notes_start, journal_file):
     note = input("Enter a new note: ").strip()
@@ -311,18 +315,9 @@ while True:
         print("Error: Invalid journal structure.")
         break
 
-    print("\nToday's tasks:\n")
-
     display_tasks(task_lines)
 
-    print("\nChoose an option:")
-    print("1. Add a task")
-    print("2. Complete a task")
-    print("3. Reopen a task")
-    print("4. Add a note")
-    print("5. Add an event")
-    print("6. Cancel a task")
-    print("7. Exit")
+    display_menu()
 
     choice = input("\nOption: ").strip()
 
@@ -330,10 +325,10 @@ while True:
         add_task(content, notes_start, journal_file)
 
     elif choice == "2":
-        completed_task(content, task_lines, journal_file)
+        complete_task(content, task_lines, journal_file)
 
     elif choice == "3":
-        reopen_task(content, task_lines,journal_file)
+        reopen_task(content, task_lines, journal_file)
 
     elif choice == "4":
         add_note(content, notes_start, journal_file)
