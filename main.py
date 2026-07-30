@@ -275,7 +275,7 @@ def add_event(content, journal_file):
 
 def create_daily_journal(journal_file, today):
     if journal_file.exists():
-        create_daily_journal
+        return
 
     journal_file.write_text(
         f"# {today.strftime('%A, %d %B %Y')}\n\n"
@@ -285,69 +285,73 @@ def create_daily_journal(journal_file, today):
         encoding="utf-8"        
     )
 
-today = date.today()
-filename = f"{today.isoformat()}.md"
+def main():
+    today = date.today()
+    filename = f"{today.isoformat()}.md"
 
-journal_folder = Path("journal")
-journal_folder.mkdir(exist_ok=True)
+    journal_folder = Path("journal")
+    journal_folder.mkdir(exist_ok=True)
 
-journal_file = journal_folder / filename
-
-
-if not journal_file.exists():
-    create_daily_journal(journal_file, today)
+    journal_file = journal_folder / filename
 
 
-while True:
-    content = journal_file.read_text(encoding="utf-8")
+    if not journal_file.exists():
+        create_daily_journal(journal_file, today)
 
-    tasks_header = "## Tasks\n"
-    notes_header = "## Notes"
 
-    tasks_start = content.find(tasks_header)
-    notes_start = content.find(notes_header, tasks_start)
+    while True:
+        content = journal_file.read_text(encoding="utf-8")
 
-    if tasks_start == -1:
-        print("Error: Tasks section not found.")
-        break
+        tasks_header = "## Tasks\n"
+        notes_header = "## Notes"
 
-    if notes_start == -1:
-        print("Error: Notes section not found.")
-        break
+        tasks_start = content.find(tasks_header)
+        notes_start = content.find(notes_header, tasks_start)
 
-    task_lines = get_task_lines(content)
+        if tasks_start == -1:
+            print("Error: Tasks section not found.")
+            break
 
-    if task_lines is None:
-        print("Error: Invalid journal structure.")
-        break
+        if notes_start == -1:
+            print("Error: Notes section not found.")
+            break
 
-    display_tasks(task_lines)
+        task_lines = get_task_lines(content)
 
-    display_menu()
+        if task_lines is None:
+            print("Error: Invalid journal structure.")
+            break
 
-    choice = input("\nOption: ").strip()
+        display_tasks(task_lines)
 
-    if choice == "1":
-        add_task(content, notes_start, journal_file)
+        display_menu()
 
-    elif choice == "2":
-        complete_task(content, task_lines, journal_file)
+        choice = input("\nOption: ").strip()
 
-    elif choice == "3":
-        reopen_task(content, task_lines, journal_file)
+        if choice == "1":
+            add_task(content, notes_start, journal_file)
 
-    elif choice == "4":
-        add_note(content, notes_start, journal_file)
+        elif choice == "2":
+            complete_task(content, task_lines, journal_file)
 
-    elif choice == "5":
-        add_event(content, journal_file)
+        elif choice == "3":
+            reopen_task(content, task_lines, journal_file)
 
-    elif choice == "6":
-        cancel_task(content, task_lines, journal_file)
+        elif choice == "4":
+            add_note(content, notes_start, journal_file)
 
-    elif choice == "7":
-        print("Goodbye.")
-        break
+        elif choice == "5":
+            add_event(content, journal_file)
 
-    else:
-        print("Invalid option.")
+        elif choice == "6":
+            cancel_task(content, task_lines, journal_file)
+
+        elif choice == "7":
+            print("Goodbye.")
+            break
+
+        else:
+            print("Invalid option.")
+
+if __name__ == "__main__":
+    main()
