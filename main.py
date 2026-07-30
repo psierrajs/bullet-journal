@@ -27,6 +27,22 @@ def get_task_lines(content):
 
     return task_lines
 
+def get_section_positions(content):
+    tasks_start = content.find("## Tasks\n")
+    notes_start = content.find("## Notes")
+    events_start = content.find("## Events")
+
+    if tasks_start == -1:
+        return None
+
+    if notes_start == -1:
+        return None
+
+    if events_start == -1:
+        return None
+
+    return tasks_start, notes_start, events_start
+
 def display_tasks(task_lines):
     print("\nToday's tasks:\n")
 
@@ -219,18 +235,11 @@ def cancel_task(content, task_lines, journal_file):
 
     print(f"Cancelled: {cancelled_task}")
 
-def add_note(content, notes_start, journal_file):
+def add_note(content, events_start, journal_file):
     note = input("Enter a new note: ").strip()
 
     if not note:
         print("No note entered. Nothing was added.")
-        return
-
-    events_header = "## Events"
-    events_start = content.find(events_header, notes_start)
-
-    if events_start == -1:
-        print("Error: Events section not found.")
         return
 
     note_line = f"- {note}\n"
@@ -301,19 +310,13 @@ def main():
     while True:
         content = journal_file.read_text(encoding="utf-8")
 
-        tasks_header = "## Tasks\n"
-        notes_header = "## Notes"
+        section_positions = get_section_positions(content)
 
-        tasks_start = content.find(tasks_header)
-        notes_start = content.find(notes_header, tasks_start)
-
-        if tasks_start == -1:
-            print("Error: Tasks section not found.")
+        if get_section_positions is None:
+            print("Error, Invalid journal structure.")
             break
 
-        if notes_start == -1:
-            print("Error: Notes section not found.")
-            break
+        tasks_start, notes_start, events_start = section_positions
 
         task_lines = get_task_lines(content)
 
@@ -337,7 +340,7 @@ def main():
             reopen_task(content, task_lines, journal_file)
 
         elif choice == "4":
-            add_note(content, notes_start, journal_file)
+            add_note(content, events_start, journal_file)
 
         elif choice == "5":
             add_event(content, journal_file)
