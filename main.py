@@ -113,6 +113,58 @@ def completed_task(content, task_lines, journal_file):
 
     print(f"Completed: {completed_task}")
 
+def reopen_task(content, task_lines, journal_file):
+    if not task_lines:
+        print("There are no tasks to reopen")
+        return
+
+    task_number_text = input(
+        "Enter the number of the task to reopen: "
+    ).strip()
+
+    if not task_number_text.isdigit():
+        print("Please enter a valid number.")
+        return
+
+    task_number = int(task_number_text)
+
+    if task_number < 1 or task_number > len(task_lines):
+        print("That task number does not exist.")
+        return
+
+    selected_task = task_lines[task_number - 1]
+
+    if selected_task.lower().startswith("- [x]"):
+        reopened_task = selected_task.replace(
+            "- [x]",
+            "- [ ]",
+            1
+        )
+
+    elif selected_task.startswith("- [-]"):
+        reopened_task = selected_task.replace(
+            "- [-]",
+            "- [ ]",
+            1
+        )
+
+    else:
+        print("That task is already open.")
+        input("Press Enter to continue")
+        return
+
+    new_content = content.replace(
+        selected_task,
+        reopened_task,1
+    )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
+    print(f"Reopened: {reopened_task}")
+
 today = date.today()
 filename = f"{today.isoformat()}.md"
 
@@ -177,58 +229,7 @@ while True:
         completed_task(content, task_lines, journal_file)
 
     elif choice == "3":
-        if not task_lines:
-            print("There are no tasks to reopen.")
-            continue
-
-        task_number_text = input(
-            "Enter the number of the task to reopen: "
-        ).strip()
-
-        if not task_number_text.isdigit():
-            print("Please enter a valid number.")
-            continue
-
-        task_number = int(task_number_text)
-
-        if task_number < 1 or task_number > len(task_lines):
-            print("That task number does not exist.")
-            continue
-
-        selected_task = task_lines[task_number - 1]
-
-        if selected_task.lower().startswith("- [x]"):
-            reopened_task = selected_task.replace(
-                "- [x]",
-                "- [ ]",
-                1
-            )
-
-        elif selected_task.lower().startswith("- [-]"):
-            reopened_task = selected_task.replace(
-                "- [-]",
-                "- [ ]",
-                1
-            )
-
-        else:
-            print("\nThat task is already open.")
-            input("Press Enter to continue...")
-            continue
-
-        new_content = content.replace(
-            selected_task,
-            reopened_task,
-            1
-        )
-
-        journal_file.write_text(
-            new_content,
-            encoding="utf-8"
-        )
-
-        print(f"\nReopened: {reopened_task}")
-        input("Press Enter to continue...")
+        reopen_task(content, task_lines,journal_file)
 
     elif choice == "4":
         note = input("Enter a new note: ").strip()
