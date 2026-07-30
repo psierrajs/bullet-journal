@@ -92,6 +92,18 @@ def add_task(content, notes_start, journal_file):
 
     print(f'Task added: "{task}"')
 
+def replace_task(content, old_task, new_task, journal_file):
+    new_content = content.replace(
+        old.task,
+        new.task,
+        1
+    )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
 def complete_task(content, task_lines, journal_file):
     if not task_lines:
         print("There are no tasks to complete.")
@@ -120,15 +132,11 @@ def complete_task(content, task_lines, journal_file):
         "- [x]",
         1)
 
-    new_content = content.replace(
+    replace_task(
+        content,
         selected_task,
         completed_task,
-        1
-    )
-
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+        journal_file
     )
 
     print(f"Completed: {completed_task}")
@@ -165,15 +173,10 @@ def reopen_task(content, task_lines, journal_file):
         input("Press Enter to continue...")
         return
 
-    new_content = content.replace(
+    replace_task(
+        content,
         selected_task,
-        reopened_task,
-        1
-    )
-
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+        journal_file
     )
 
     print(f"Reopened: {reopened_task}")
@@ -207,15 +210,11 @@ def cancel_task(content, task_lines, journal_file):
         1
     )
 
-    new_content = content.replace(
+    replace_task(
+        content,
         selected_task,
-        cancelled_task,
-        1
-    )
-
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+        reopened_task,
+        journal_file
     )
 
     print(f"Cancelled: {cancelled_task}")
