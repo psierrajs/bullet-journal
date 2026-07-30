@@ -273,6 +273,18 @@ def add_event(content, journal_file):
 
     print(f'Event added: "{event}"')
 
+def create_daily_journal(journal_file, today):
+    if journal_file.exists():
+        create_daily_journal
+
+    journal_file.write_text(
+        f"# {today.strftime('%A, %d %B %Y')}\n\n"
+        "## Tasks\n\n"
+        "## Notes\n\n"
+        "## Events\n",
+        encoding="utf-8"        
+    )
+
 today = date.today()
 filename = f"{today.isoformat()}.md"
 
@@ -283,13 +295,7 @@ journal_file = journal_folder / filename
 
 
 if not journal_file.exists():
-    journal_file.write_text(
-        f"# {today.strftime('%A, %d %B %Y')}\n\n"
-        "## Tasks\n\n"
-        "## Notes\n\n"
-        "## Events\n",
-        encoding="utf-8"
-    )
+    create_daily_journal(journal_file, today)
 
 
 while True:
