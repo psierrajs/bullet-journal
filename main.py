@@ -250,6 +250,24 @@ def add_note(content, notes_start, journal_file):
 
     print(f'Note added: "{note}"')
 
+def add_event(content, journal_file):
+    event = input("Enter a new event: ").strip()
+
+    if not event:
+        print("No event entered. Nothing was added.")
+        return
+
+    event_line = f"- {event}\n"
+
+    current_content = journal_file.read_text(encoding="utf-8")
+    new_content = current_content.rstrip() + "\n" + event_line
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
+    print(f'Event added: "{event}"')
 
 today = date.today()
 filename = f"{today.isoformat()}.md"
@@ -321,23 +339,7 @@ while True:
         add_note(content, notes_start, journal_file)
 
     elif choice == "5":
-        event = input("Enter a new event: ").strip()
-
-        if not event:
-            print("No event entered. Nothing was added.")
-            continue
-
-        event_line = f"- {event}\n"
-
-        current_content = journal_file.read_text(encoding="utf-8")
-        new_content = current_content.rstrip() + "\n" + event_line
-
-        journal_file.write_text(
-            new_content,
-            encoding="utf-8"
-        )
-
-        print(f'Event added: "{event}"')
+        add_event(content, journal_file)
 
     elif choice == "6":
         cancel_task(content, task_lines, journal_file)
