@@ -391,21 +391,27 @@ def append_line(content, new_line, journal_file):
     )
 
 def add_event(content, journal_file):
-    event = input("Enter a new event: ").strip()
+    while True:
+        event = input(
+            "Enter a new event, or press Enter to finish: "
+        ).strip()
 
-    if not event:
-        print("No event entered. Nothing was added.")
-        return
+        if not event:
+            return
 
-    event_line = f"- {event}\n"
+        event_line = f"- {event}\n"
 
-    append_line(
-        content,
-        event_line,
-        journal_file
-    )
+        append_line(
+            content,
+            event_line,
+            journal_file
+        )
 
-    print(f'Event added: "{event}"')
+        print(f'Event added: "{event}"')
+
+        content = journal_file.read_text(
+            encoding="utf-8"
+        )
 
 def create_daily_journal(journal_file, today):
     if journal_file.exists():
