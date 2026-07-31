@@ -103,7 +103,8 @@ def display_menu():
     print("13. Edit a task")
     print("14. Delete a task")
     print("15. Edit a note")
-    print("16. Exit")
+    print("16. Delete a note")
+    print("17. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -560,6 +561,61 @@ def edit_note(
     print(f'Note updated: "{new_text}"')
     pause()
 
+def delete_note(content, note_lines, journal_file):
+    if not note_lines:
+        print("There are no notes to delete.")
+        pause()
+        return
+
+    print("\nToday's notes:\n")
+
+    for number, note_line in enumerate(
+        note_lines,
+        start=1
+    ):
+        print(f"{number}. {note_line}")
+
+    selected_note = select_line(
+        note_lines,
+        "Enter the number of the note to delete: "
+    )
+
+    if selected_note is None:
+        pause()
+        return
+
+    print(f"\nSelected note: {selected_note}")
+
+    confirmation = input(
+        "Delete this note? [y/N]: "
+    ).strip().lower()
+
+    if confirmation != "y":
+        print("Deletion cancelled.")
+        pause()
+        return
+
+    new_content = content.replace(
+        selected_note + "\n",
+        "",
+        1
+    )
+
+    if new_content == content:
+        new_content = content.replace(
+            selected_note,
+            "",
+            1
+        )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
+    print("Note deleted.")
+    pause()
+
 def append_line(content, new_line, journal_file):
     new_content = content.rstrip() + "\n" + new_line
 
@@ -986,6 +1042,13 @@ def main():
             )
 
         elif choice == "16":
+            delete_note(
+                content,
+                note_lines,
+                journal_file
+            )
+
+        elif choice == "17":
             print("Goodbye.")
             break
 
