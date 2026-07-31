@@ -1,5 +1,5 @@
 from pathlib import Path
-from datetime import date
+from datetime import date, timedelta
 
 def get_task_lines(content):
     tasks_header = "## Tasks\n"
@@ -61,7 +61,8 @@ def display_menu():
     print("4. Add a note")
     print("5. Add an event")
     print("6. Cancel a task")
-    print("7. Exit")
+    print("7. Migrate a task.")
+    print("8. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -101,8 +102,8 @@ def add_task(content, notes_start, journal_file):
 
 def replace_task(content, old_task, new_task, journal_file):
     new_content = content.replace(
-        old.task,
-        new.task,
+        old_task,
+        new_task,
         1
     )
 
@@ -225,6 +226,87 @@ def cancel_task(content, task_lines, journal_file):
     )
 
     print(f"Cancelled: {cancelled_task}")
+
+def migrate_task(
+    content,
+    task_lines,
+    journal_file,
+    journal_folder,
+    today
+):
+
+    if not task_lines:
+        print("There are no tasks to migrate.")
+        return
+
+    selected_task = select_task(
+        task_lines,
+        "Enter the number of the task to migrate: "
+    )
+
+    if selected_task is None:
+        return
+
+    if selected_task.lower().startswith("- [x]"):
+        print("A completed task cannot be migrated.")
+        input("Press Enter to continue...")
+        return
+
+    if selected_task.startswith("- [-]"):
+        print("A cancelled task cannot be migrated.")
+        input("Press Enter to continue...")
+        return
+
+    if selected_task.startswith("- [>]"):
+        print("That task has already been migrated.")
+        input("Press Enter to continue...")
+        return
+
+    tomorrow = today + timedelta(days=1)
+
+    tomorrow_filename = f"{tomorrow.isoformat()}.md"
+    tomorrow_file = journal_folder / tomorrow_filename
+
+    create_daily_journal(tomorrow_file, tomorrow)
+
+    migrated_task = selected_task.replace(
+        "- [ ]",
+        "- [>]",
+        1
+    )
+
+    replace_task(
+        content,
+        selected_task,
+        migrated_task,
+        journal_file
+    )
+
+    tomorrow_content = tomorrow_file.read_text(
+        encoding="utf-8"
+    )
+
+    tomorrow_positions = get_section_positions(
+        tomorrow_content
+    )
+
+    if tomorrow_positions is None:
+        print("Error: Invalid structure in tomorrow's journal.")
+        return
+
+    _, tomorrow_notes_start, _ = tomorrow_positions
+
+    new_task = selected_task
+
+    insert_before_section(
+        tomorrow_content,
+        tomorrow_notes_start,
+        new_task + "\n",
+        tomorrow_file
+    )
+
+    print(f"Migrated to {tomorrow.isoformat()}: {migrated_task}")
+    input("Press Enter to continue...")
 
 def add_note(content, events_start, journal_file):
     note = input("Enter a new note: ").strip()
@@ -359,6 +441,15 @@ def main():
             cancel_task(content, task_lines, journal_file)
 
         elif choice == "7":
+            migrate_task(
+                content,
+                task_lines,
+                journal_file,
+                journal_folder,
+                today
+        )
+
+        elif choice == "8":
             print("Goodbye.")
             break
 
