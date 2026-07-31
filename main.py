@@ -116,22 +116,33 @@ def select_task(task_lines, prompt):
     return task_lines[task_number -1]
 
 def add_task(content, notes_start, journal_file):
-    task = input("Enter a new task: ").strip()
+    while True:
+        task = input(
+            "Enter a new task, or press Enter to finish: "
+        ).strip()
 
-    if not task:
-        print("No task entered, Nothing was added.")
-        return
+        if not task:
+            return
 
-    task_line = f"- [ ] {task}\n"
+        task_line = f"- [ ] {task}\n"
 
-    insert_before_section(
-    content,
-    notes_start,
-    task_line,
-    journal_file
-)
+        insert_before_section(
+            content,
+            notes_start,
+            task_line,
+            journal_file
+        )
 
-    print(f'Task added: "{task}"')
+        print(f'Task added: "{task}"')
+
+        content = journal_file.read_text(encoding="utf-8")
+        section_positions = get_section_positions(content)
+
+        if section_positions is None:
+            print("Error: Invalid journal structure.")
+            return
+
+        _, notes_start, _ = section_positions
 
 def replace_task(content, old_task, new_task, journal_file):
     new_content = content.replace(
@@ -160,12 +171,12 @@ def complete_task(content, task_lines, journal_file):
 
     if selected_task.lower().startswith("- [x]"):
         print("That task is already completed.")
-        input("Press Enter to continue...")
+        pause()
         return
 
     if selected_task.startswith("- [-]"):
         print("A cancelled task must be reopened first.")
-        input("Press Enter to continue...")
+        pause()
         return
 
     completed_task = selected_task.replace(
@@ -211,7 +222,7 @@ def reopen_task(content, task_lines, journal_file):
 
     else:
         print("That task is already open.")
-        input("Press Enter to continue...")
+        pause()
         return
 
     replace_task(
@@ -237,12 +248,12 @@ def cancel_task(content, task_lines, journal_file):
 
     if selected_task.startswith("- [-]"):
         print("That task is already cancelled.")
-        input("Press Enter to continue...")
+        pause()
         return
 
     if selected_task.lower().startswith("- [x]"):
         print("A completed task cannot be cancelled.")
-        input("Press Enter to continue...")
+        pause()
         return
 
     cancelled_task = selected_task.replace(
@@ -282,17 +293,17 @@ def migrate_task(
 
     if selected_task.lower().startswith("- [x]"):
         print("A completed task cannot be migrated.")
-        input("Press Enter to continue...")
+        pause()
         return
 
     if selected_task.startswith("- [-]"):
         print("A cancelled task cannot be migrated.")
-        input("Press Enter to continue...")
+        pause()
         return
 
     if selected_task.startswith("- [>]"):
         print("That task has already been migrated.")
-        input("Press Enter to continue...")
+        pause()
         return
 
     tomorrow = today + timedelta(days=1)
@@ -339,7 +350,7 @@ def migrate_task(
     )
 
     print(f"Migrated to {tomorrow.isoformat()}: {migrated_task}")
-    input("Press Enter to continue...")
+    pause()
 
 def add_note(content, events_start, journal_file):
     note = input("Enter a new note: ").strip()
@@ -417,6 +428,9 @@ def insert_before_section(
         new_content,
         encoding="utf-8"
     )
+
+def pause():
+    input("Press Enter to continue...")
 
 def main():
     today = date.today()
