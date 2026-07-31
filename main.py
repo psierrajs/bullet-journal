@@ -99,7 +99,8 @@ def display_menu():
     print("9. List journal days")
     print("10. Search journals")
     print("11. List pending tasks")
-    print("12. Exit")
+    print("12. Review yesterday")
+    print("13. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -578,6 +579,49 @@ def list_pending_tasks(journal_folder):
 
     pause()
 
+def review_previous_day(journal_folder, today):
+    previous_date = today - timedelta(days=1)
+    previous_file = journal_folder / f"{previous_date.isoformat()}.md"
+
+    if not previous_file.exists():
+        print(
+            f"No journal exists for {previous_date.isoformat()}."
+        )
+        pause()
+        return
+
+    content = previous_file.read_text(encoding="utf-8")
+    task_lines = get_task_lines(content)
+
+    if task_lines is None:
+        print("Error: Invalid previous journal structure.")
+        pause()
+        return
+
+    pending_tasks = [
+        task_line
+        for task_line in task_lines
+        if task_line.startswith("- [ ]")
+    ]
+
+    print(
+        f"\nPending tasks from "
+        f"{previous_date.isoformat()}:\n"
+    )
+
+    if not pending_tasks:
+        print("No pending tasks from yesterday.")
+        pause()
+        return
+
+    for number, task_line in enumerate(
+        pending_tasks,
+        start=1
+    ):
+        print(f"{number}. {task_line}")
+
+    pause()
+
 def main():
     today = date.today()
     filename = f"{today.isoformat()}.md"
@@ -666,6 +710,12 @@ def main():
             list_pending_tasks(journal_folder)
 
         elif choice == "12":
+            review_previous_day(
+                journal_folder,
+                today
+            )
+
+        elif choice == "13":
             print("Goodbye.")
             break
 
