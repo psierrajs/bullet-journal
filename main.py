@@ -98,7 +98,8 @@ def display_menu():
     print("8. View another day")
     print("9. List journal days")
     print("10. Search journals")
-    print("11. Exit")
+    print("11. List pending tasks")
+    print("12. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -545,6 +546,38 @@ def search_journals(journal_folder):
 
     pause()
 
+def list_pending_tasks(journal_folder):
+    journal_files = sorted(journal_folder.glob("*.md"))
+    pending_tasks = []
+
+    for journal_file in journal_files:
+        content = journal_file.read_text(encoding="utf-8")
+        task_lines = get_task_lines(content)
+
+        if task_lines is None:
+            continue
+
+        for task_line in task_lines:
+            if task_line.startswith("- [ ]"):
+                pending_tasks.append(
+                    (journal_file.stem, task_line)
+                )
+
+    print("\nPending tasks:\n")
+
+    if not pending_tasks:
+        print("No pending tasks found.")
+        pause()
+        return
+
+    for number, (journal_date, task_line) in enumerate(
+        pending_tasks,
+        start=1
+    ):
+        print(f"{number}. {journal_date}: {task_line}")
+
+    pause()
+
 def main():
     today = date.today()
     filename = f"{today.isoformat()}.md"
@@ -630,6 +663,9 @@ def main():
             search_journals(journal_folder)
 
         elif choice == "11":
+            list_pending_tasks(journal_folder)
+
+        elif choice == "12":
             print("Goodbye.")
             break
 
