@@ -27,6 +27,22 @@ def get_task_lines(content):
 
     return task_lines
 
+def get_section_lines(content, section_start, next_section_start=None):
+    if next_section_start is None:
+        section = content[section_start:]
+    else:
+        section = content[section_start:next_section_start]
+
+    lines = []
+
+    for line in section.splitlines()[1:]:
+        stripped_line = line.strip()
+
+        if stripped_line:
+            lines.append(stripped_line)
+
+    return lines
+
 def get_section_positions(content):
     tasks_start = content.find("## Tasks\n")
     notes_start = content.find("## Notes")
@@ -52,6 +68,23 @@ def display_tasks(task_lines):
 
     for number, task_line in enumerate(task_lines, start=1):
         print(f"{number}. {task_line}")
+
+def display_journal_details(note_lines, event_lines):
+    print("\nToday's notes:\n")
+
+    if not note_lines:
+        print("No notes yet.")
+    else:
+        for note_line in note_lines:
+            print(note_line)
+
+    print("\nToday's events:\n")
+
+    if not event_lines:
+        print("No events yet.")
+    else:
+        for event_line in event_lines:
+            print(event_line)
 
 def display_menu():
     print("\nChoose an option:")
@@ -410,6 +443,17 @@ def main():
 
         tasks_start, notes_start, events_start = section_positions
 
+        note_lines = get_section_lines(
+            content,
+            notes_start,
+            events_start
+        )
+
+        event_lines = get_section_lines(
+            content,
+            events_start
+        )
+
         task_lines = get_task_lines(content)
 
         if task_lines is None:
@@ -417,7 +461,7 @@ def main():
             break
 
         display_tasks(task_lines)
-
+        display_journal_details(note_lines, event_lines)
         display_menu()
 
         choice = input("\nOption: ").strip()
