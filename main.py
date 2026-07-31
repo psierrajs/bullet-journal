@@ -102,7 +102,8 @@ def display_menu():
     print("12. Review yesterday")
     print("13. Edit a task")
     print("14. Delete a task")
-    print("15. Exit")
+    print("15. Edit a note")
+    print("16. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -121,6 +122,24 @@ def select_task(task_lines, prompt):
         return None
 
     return task_lines[task_number -1]
+
+def select_line(lines, prompt):
+    if not lines:
+        return None
+
+    line_number_text = input(prompt).strip()
+
+    if not line_number_text.isdigit():
+        print("Please enter a valid number.")
+        return None
+
+    line_number = int(line_number_text)
+
+    if line_number < 1 or line_number > len(lines):
+        print("That number does not exist.")
+        return None
+
+    return lines[line_number - 1]
 
 def add_task(content, notes_start, journal_file):
     while True:
@@ -488,6 +507,58 @@ def add_note(content, events_start, journal_file):
             return
 
         _, _, events_start = section_positions
+
+def edit_note(
+    content,
+    note_lines,
+    journal_file
+):
+    if not note_lines:
+        print("There are no notes to edit.")
+        pause()
+        return
+
+    print("\nToday's notes:\n")
+
+    for number, note_line in enumerate(
+        note_lines,
+        start=1
+    ):
+        print(f"{number}. {note_line}")
+
+    selected_note = select_line(
+        note_lines,
+        "Enter the number of the note to edit: "
+    )
+
+    if selected_note is None:
+        pause()
+        return
+
+    new_text = input(
+        "Enter the new note text: "
+    ).strip()
+
+    if not new_text:
+        print("No note text entered. Nothing was changed.")
+        pause()
+        return
+
+    edited_note = f"- {new_text}"
+
+    new_content = content.replace(
+        selected_note,
+        edited_note,
+        1
+    )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
+    print(f'Note updated: "{new_text}"')
+    pause()
 
 def append_line(content, new_line, journal_file):
     new_content = content.rstrip() + "\n" + new_line
@@ -908,6 +979,13 @@ def main():
         )
 
         elif choice == "15":
+            edit_note(
+                content,
+                note_lines,
+                journal_file
+            )
+
+        elif choice == "16":
             print("Goodbye.")
             break
 
