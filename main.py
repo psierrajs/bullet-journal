@@ -95,7 +95,8 @@ def display_menu():
     print("5. Add an event")
     print("6. Cancel a task")
     print("7. Migrate a task.")
-    print("8. Exit")
+    print("8. View another day")
+    print("9. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -450,6 +451,34 @@ def insert_before_section(
 def pause():
     input("Press Enter to continue...")
 
+def view_journal(journal_folder):
+    date_text = input(
+        "Enter the date to view (YYYY-MM-DD): "
+    ).strip()
+
+    try:
+        selected_date = date.fromisoformat(date_text)
+    except ValueError:
+        print("Please enter a valid date in YYYY-MM-DD format.")
+        pause()
+        return
+
+    filename = f"{selected_date.isoformat()}.md"
+    selected_file = journal_folder / filename
+
+    if not selected_file.exists():
+        print(f"No journal exists for {date_text}.")
+        pause()
+        return
+
+    content = selected_file.read_text(encoding="utf-8")
+
+    print("\n" + "=" * 40)
+    print(content)
+    print("=" * 40)
+
+    pause()
+
 def main():
     today = date.today()
     filename = f"{today.isoformat()}.md"
@@ -526,6 +555,9 @@ def main():
         )
 
         elif choice == "8":
+            view_journal(journal_folder)
+
+        elif choice == "9":
             print("Goodbye.")
             break
 
