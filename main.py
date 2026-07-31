@@ -579,28 +579,41 @@ def list_pending_tasks(journal_folder):
 
     pause()
 
-def review_previous_day(journal_folder, today):
+def review_previous_day(
+    journal_folder,
+    journal_file,
+    today
+):
     previous_date = today - timedelta(days=1)
-    previous_file = journal_folder / f"{previous_date.isoformat()}.md"
+    previous_file = (
+        journal_folder
+        / f"{previous_date.isoformat()}.md"
+    )
 
     if not previous_file.exists():
         print(
-            f"No journal exists for {previous_date.isoformat()}."
+            f"No journal exists for "
+            f"{previous_date.isoformat()}."
         )
         pause()
         return
 
-    content = previous_file.read_text(encoding="utf-8")
-    task_lines = get_task_lines(content)
+    previous_content = previous_file.read_text(
+        encoding="utf-8"
+    )
 
-    if task_lines is None:
+    previous_tasks = get_task_lines(
+        previous_content
+    )
+
+    if previous_tasks is None:
         print("Error: Invalid previous journal structure.")
         pause()
         return
 
     pending_tasks = [
         task_line
-        for task_line in task_lines
+        for task_line in previous_tasks
         if task_line.startswith("- [ ]")
     ]
 
@@ -619,6 +632,68 @@ def review_previous_day(journal_folder, today):
         start=1
     ):
         print(f"{number}. {task_line}")
+
+    print("\n1. Migrate a task to today")
+    print("2. Return to the main menu")
+
+    choice = input("\nOption: ").strip()
+
+    if choice == "2":
+        return
+
+    if choice != "1":
+        print("Invalid option.")
+        pause()
+        return
+
+    selected_task = select_task(
+        pending_tasks,
+        "Enter the task number to migrate: "
+    )
+
+    if selected_task is None:
+        pause()
+        return
+
+    migrated_task = selected_task.replace(
+        "- [ ]",
+        "- [>]",
+        1
+    )
+
+    replace_task(
+        previous_content,
+        selected_task,
+        migrated_task,
+        previous_file
+    )
+
+    today_content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    section_positions = get_section_positions(
+        today_content
+    )
+
+    if section_positions is None:
+        print("Error: Invalid journal structure.")
+        pause()
+        return
+
+    _, notes_start, _ = section_positions
+
+    insert_before_section(
+        today_content,
+        notes_start,
+        selected_task + "\n",
+        journal_file
+    )
+
+    print(
+        f"Migrated from {previous_date.isoformat()}: "
+        f"{selected_task}"
+    )
 
     pause()
 
@@ -712,8 +787,9 @@ def main():
         elif choice == "12":
             review_previous_day(
                 journal_folder,
+                journal_file,
                 today
-            )
+        )
 
         elif choice == "13":
             print("Goodbye.")
