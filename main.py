@@ -173,6 +173,18 @@ def add_task(content, notes_start, journal_file):
 
         _, notes_start, _ = section_positions
 
+def write_journal(journal_file, content):
+    temporary_file = journal_file.with_suffix(
+        journal_file.suffix + ".tmp"
+    )
+
+    temporary_file.write_text(
+        content,
+        encoding="utf-8"
+    )
+
+    temporary_file.replace(journal_file)
+
 def replace_task(content, old_task, new_task, journal_file):
     new_content = content.replace(
         old_task,
@@ -180,9 +192,9 @@ def replace_task(content, old_task, new_task, journal_file):
         1
     )
 
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+    write_journal(
+        journal_file,
+        new_content
     )
 
 def complete_task(content, task_lines, journal_file):
@@ -222,7 +234,11 @@ def complete_task(content, task_lines, journal_file):
 
     print(f"Completed: {completed_task}")
 
-def reopen_task(content, task_lines, journal_file):
+def reopen_task(
+        content, 
+        task_lines, 
+        journal_file
+    ):
     if not task_lines:
         print("There are no tasks to reopen.")
         return
@@ -257,6 +273,7 @@ def reopen_task(content, task_lines, journal_file):
     replace_task(
         content,
         selected_task,
+        reopened_task,
         journal_file
     )
 
@@ -294,7 +311,7 @@ def cancel_task(content, task_lines, journal_file):
     replace_task(
         content,
         selected_task,
-        reopened_task,
+        cancelled_task,
         journal_file
     )
 
@@ -392,9 +409,9 @@ def delete_task(content, task_lines, journal_file):
             1
         )
 
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+    write_journal(
+        journal_file,
+        new_content
     )
 
     print("Task deleted.")
@@ -555,9 +572,9 @@ def edit_note(
         1
     )
 
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+    write_journal(
+        journal_file,
+        new_content
     )
 
     print(f'Note updated: "{new_text}"')
@@ -610,9 +627,9 @@ def delete_note(content, note_lines, journal_file):
             1
         )
 
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+    write_journal(
+        journal_file,
+        new_content
     )
 
     print("Note deleted.")
@@ -621,9 +638,9 @@ def delete_note(content, note_lines, journal_file):
 def append_line(content, new_line, journal_file):
     new_content = content.rstrip() + "\n" + new_line
 
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+    write_journal(
+        journal_file,
+        new_content
     )
 
 def add_event(content, journal_file):
@@ -693,9 +710,9 @@ def edit_event(
         1
     )
 
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+    write_journal(
+        journal_file,
+        new_content
     )
 
     print(f'Event updated: "{new_text}"')
@@ -749,9 +766,9 @@ def delete_event(content, event_lines, journal_file):
             1
         )
 
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+    write_journal(
+        journal_file,
+        new_content
     )
 
     print("Event deleted.")
@@ -786,9 +803,9 @@ def insert_before_section(
         + after_section
     )
 
-    journal_file.write_text(
-        new_content,
-        encoding="utf-8"
+    write_journal(
+        journal_file,
+        new_content
     )
 
 def pause():
@@ -1055,7 +1072,7 @@ def main():
 
         section_positions = get_section_positions(content)
 
-        if get_section_positions is None:
+        if section_positions is None:
             print("Error, Invalid journal structure.")
             break
 
@@ -1172,7 +1189,7 @@ def main():
                 journal_file
             )
 
-        elif choice == "18":
+        elif choice == "19":
             print("Goodbye.")
             break
 
