@@ -96,7 +96,8 @@ def display_menu():
     print("6. Cancel a task")
     print("7. Migrate a task.")
     print("8. View another day")
-    print("9. Exit")
+    print("9. List journal days")
+    print("10. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -479,6 +480,33 @@ def view_journal(journal_folder):
 
     pause()
 
+def list_journals(journal_folder):
+    journal_files = sorted(journal_folder.glob("*.md"))
+
+    if not journal_files:
+        print("No journal files found.")
+        pause()
+        return
+
+    print("\nAvailable journal days:\n")
+
+    for journal_file in journal_files:
+        try:
+            journal_date = date.fromisoformat(journal_file.stem)
+        except ValueError:
+            continue
+
+        formatted_date = journal_date.strftime(
+            "%A, %d %B %Y"
+        )
+
+        print(
+            f"{journal_date.isoformat()} — "
+            f"{formatted_date}"
+        )
+
+    pause()
+
 def main():
     today = date.today()
     filename = f"{today.isoformat()}.md"
@@ -558,6 +586,9 @@ def main():
             view_journal(journal_folder)
 
         elif choice == "9":
+            list_journals(journal_folder)
+
+        elif choice == "10":
             print("Goodbye.")
             break
 
