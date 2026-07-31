@@ -101,7 +101,8 @@ def display_menu():
     print("11. List pending tasks")
     print("12. Review yesterday")
     print("13. Edit a task")
-    print("14. Exit")
+    print("14. Delete a task")
+    print("15. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -328,6 +329,53 @@ def edit_task(content, task_lines, journal_file):
     )
 
     print(f"Task updated: {edited_task}")
+    pause()
+
+def delete_task(content, task_lines, journal_file):
+    if not task_lines:
+        print("There are no tasks to delete.")
+        pause()
+        return
+
+    selected_task = select_task(
+        task_lines,
+        "Enter the number of the task to delete: "
+    )
+
+    if selected_task is None:
+        pause()
+        return
+
+    print(f"\nSelected task: {selected_task}")
+
+    confirmation = input(
+        "Delete this task? [y/N]: "
+    ).strip().lower()
+
+    if confirmation != "y":
+        print("Deletion cancelled.")
+        pause()
+        return
+
+    new_content = content.replace(
+        selected_task + "\n",
+        "",
+        1
+    )
+
+    if new_content == content:
+        new_content = content.replace(
+            selected_task,
+            "",
+            1
+        )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
+    print("Task deleted.")
     pause()
 
 def migrate_task(
@@ -853,6 +901,13 @@ def main():
         )
 
         elif choice == "14":
+            delete_task(
+                content,
+                task_lines,
+                journal_file
+        )
+
+        elif choice == "15":
             print("Goodbye.")
             break
 
