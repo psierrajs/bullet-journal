@@ -353,22 +353,34 @@ def migrate_task(
     pause()
 
 def add_note(content, events_start, journal_file):
-    note = input("Enter a new note: ").strip()
+    while True:
+        note = input(
+            "Enter a new note, or press Enter to finish: "
+        ).strip()
 
-    if not note:
-        print("No note entered. Nothing was added.")
-        return
+        if not note:
+            return
 
-    note_line = f"- {note}\n"
+        note_line = f"- {note}\n"
 
-    insert_before_section(
-    content,
-    events_start,
-    note_line,
-    journal_file
-)
+        insert_before_section(
+            content,
+            events_start,
+            note_line,
+            journal_file
+        )
 
-    print(f'Note added: "{note}"')
+        print(f'Note added: "{note}"')
+
+        content = journal_file.read_text(encoding="utf-8")
+
+        section_positions = get_section_positions(content)
+
+        if section_positions is None:
+            print("Error: Invalid journal structure.")
+            return
+
+        _, _, events_start = section_positions
 
 def append_line(content, new_line, journal_file):
     new_content = content.rstrip() + "\n" + new_line
