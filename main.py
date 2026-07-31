@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import date, timedelta
+import shutil
 
 def get_task_lines(content):
     tasks_header = "## Tasks\n"
@@ -178,24 +179,22 @@ def write_journal(journal_file, content):
         journal_file.suffix + ".tmp"
     )
 
+    backup_file = journal_file.with_suffix(
+        journal_file.suffix + ".bak"
+    )
+
     temporary_file.write_text(
         content,
         encoding="utf-8"
     )
 
+    if journal_file.exists():
+        shutil.copy2(
+            journal_file,
+            backup_file
+        )
+
     temporary_file.replace(journal_file)
-
-def replace_task(content, old_task, new_task, journal_file):
-    new_content = content.replace(
-        old_task,
-        new_task,
-        1
-    )
-
-    write_journal(
-        journal_file,
-        new_content
-    )
 
 def complete_task(content, task_lines, journal_file):
     if not task_lines:
