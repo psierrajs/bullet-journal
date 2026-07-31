@@ -107,7 +107,8 @@ def display_menu():
     print("16. Delete a note")
     print("17. Edit an event")
     print("18. Delete an event")
-    print("19. Exit")
+    print("19. Restore today's backup")
+    print("20. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -195,6 +196,39 @@ def write_journal(journal_file, content):
         )
 
     temporary_file.replace(journal_file)
+
+def restore_backup(journal_file):
+    backup_file = journal_file.with_suffix(
+        journal_file.suffix + ".bak"
+    )
+
+    if not backup_file.exists():
+        print("No backup file exists for today.")
+        pause()
+        return
+
+    print(f"Backup found: {backup_file.name}")
+
+    confirmation = input(
+        "Restore this backup? Current changes will be replaced. [y/N]: "
+    ).strip().lower()
+
+    if confirmation != "y":
+        print("Restore cancelled.")
+        pause()
+        return
+
+    backup_content = backup_file.read_text(
+        encoding="utf-8"
+    )
+
+    write_journal(
+        journal_file,
+        backup_content
+    )
+
+    print("Backup restored successfully.")
+    pause()
 
 def complete_task(content, task_lines, journal_file):
     if not task_lines:
@@ -1189,6 +1223,9 @@ def main():
             )
 
         elif choice == "19":
+            restore_backup(journal_file)
+
+        elif choice == "20":
             print("Goodbye.")
             break
 
