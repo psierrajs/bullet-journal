@@ -97,7 +97,8 @@ def display_menu():
     print("7. Migrate a task.")
     print("8. View another day")
     print("9. List journal days")
-    print("10. Exit")
+    print("10. Search journals")
+    print("11. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -507,6 +508,43 @@ def list_journals(journal_folder):
 
     pause()
 
+def search_journals(journal_folder):
+    search_text = input(
+        "Enter text to search for: "
+    ).strip()
+
+    if not search_text:
+        print("No search text entered.")
+        pause()
+        return
+
+    journal_files = sorted(journal_folder.glob("*.md"))
+    matches_found = False
+
+    print(f'\nSearch results for "{search_text}":\n')
+
+    for journal_file in journal_files:
+        content = journal_file.read_text(
+            encoding="utf-8"
+        )
+
+        for line_number, line in enumerate(
+            content.splitlines(),
+            start=1
+        ):
+            if search_text.lower() in line.lower():
+                matches_found = True
+
+                print(
+                    f"{journal_file.stem}, "
+                    f"line {line_number}: {line}"
+                )
+
+    if not matches_found:
+        print("No matches found.")
+
+    pause()
+
 def main():
     today = date.today()
     filename = f"{today.isoformat()}.md"
@@ -589,6 +627,9 @@ def main():
             list_journals(journal_folder)
 
         elif choice == "10":
+            search_journals(journal_folder)
+
+        elif choice == "11":
             print("Goodbye.")
             break
 
