@@ -104,7 +104,8 @@ def display_menu():
     print("14. Delete a task")
     print("15. Edit a note")
     print("16. Delete a note")
-    print("17. Exit")
+    print("17. Edit an event")
+    print("18. Exit")
 
 def select_task(task_lines, prompt):
     if not task_lines:
@@ -647,6 +648,58 @@ def add_event(content, journal_file):
             encoding="utf-8"
         )
 
+def edit_event(
+    content,
+    event_lines,
+    journal_file
+):
+    if not event_lines:
+        print("There are no events to edit.")
+        pause()
+        return
+
+    print("\nToday's events:\n")
+
+    for number, event_line in enumerate(
+        event_lines,
+        start=1
+    ):
+        print(f"{number}. {event_line}")
+
+    selected_event = select_line(
+        event_lines,
+        "Enter the number of the event to edit: "
+    )
+
+    if selected_event is None:
+        pause()
+        return
+
+    new_text = input(
+        "Enter the new event text: "
+    ).strip()
+
+    if not new_text:
+        print("No event text entered. Nothing was changed.")
+        pause()
+        return
+
+    edited_event = f"- {new_text}"
+
+    new_content = content.replace(
+        selected_event,
+        edited_event,
+        1
+    )
+
+    journal_file.write_text(
+        new_content,
+        encoding="utf-8"
+    )
+
+    print(f'Event updated: "{new_text}"')
+    pause()
+
 def create_daily_journal(journal_file, today):
     if journal_file.exists():
         return
@@ -1049,6 +1102,17 @@ def main():
             )
 
         elif choice == "17":
+            edit_event(
+                content,
+                event_lines,
+                journal_file
+            )
+
+        elif choice == "18":
+            print("Goodbye.")
+            break
+
+        elif choice == "18":
             print("Goodbye.")
             break
 
