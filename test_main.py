@@ -30,6 +30,7 @@ from main import (
     reopen_task,
     replace_task,
     restore_backup,
+    search_journals,
     select_line,
     select_task,
     validate_journal_content,
@@ -3163,6 +3164,174 @@ class PendingTaskListTests(unittest.TestCase):
 
             self.assertIn(
                 "No pending tasks found.",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+class JournalSearchTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("builtins.input", return_value="pump")
+    def test_finds_text_across_journals(
+        self,
+        mock_input,
+        mock_stdout,
+        mock_pause
+    ):
+        first_content = (
+            "# Friday, 31 July 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Test the pump\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        second_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- The pump worked correctly\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            first_file = journal_folder / "2026-07-31.md"
+            second_file = journal_folder / "2026-08-01.md"
+
+            first_file.write_text(
+                first_content,
+                encoding="utf-8"
+            )
+
+            second_file.write_text(
+                second_content,
+                encoding="utf-8"
+            )
+
+            search_journals(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "2026-07-31",
+                output
+            )
+
+            self.assertIn(
+                "- [x] Test the pump",
+                output
+            )
+
+            self.assertIn(
+                "2026-08-01",
+                output
+            )
+
+            self.assertIn(
+                "- The pump worked correctly",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("builtins.input", return_value="GREENHOUSE")
+    def test_search_is_case_insensitive(
+        self,
+        mock_input,
+        mock_stdout,
+        mock_pause
+    ):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Greenhouse temperature was high\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            journal_file = journal_folder / "2026-08-01.md"
+
+            journal_file.write_text(
+                content,
+                encoding="utf-8"
+            )
+
+            search_journals(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "Greenhouse temperature was high",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("builtins.input", return_value="solar panel")
+    def test_reports_when_no_matches_are_found(
+        self,
+        mock_input,
+        mock_stdout,
+        mock_pause
+    ):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            journal_file = journal_folder / "2026-08-01.md"
+
+            journal_file.write_text(
+                content,
+                encoding="utf-8"
+            )
+
+            search_journals(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "No matches found.",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("builtins.input", return_value="")
+    def test_rejects_empty_search_text(
+        self,
+        mock_input,
+        mock_stdout,
+        mock_pause
+    ):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            search_journals(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "No search text entered.",
                 output
             )
 
