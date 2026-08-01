@@ -21,9 +21,12 @@ from terminal_ui import (
 )
 
 from main import (
+    review_previous_day,
+)
+
+from journal_actions import (
     list_journals,
     list_pending_tasks,
-    review_previous_day,
     search_journals,
     view_journal,
 )
@@ -3036,7 +3039,7 @@ class LineSelectionTests(unittest.TestCase):
 
 class PendingTaskListTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_lists_pending_tasks_from_multiple_days(
         self,
@@ -3103,7 +3106,7 @@ class PendingTaskListTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_reports_when_no_pending_tasks_exist(
         self,
@@ -3142,7 +3145,7 @@ class PendingTaskListTests(unittest.TestCase):
 
 class JournalSearchTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="pump")
     def test_finds_text_across_journals(
@@ -3209,7 +3212,7 @@ class JournalSearchTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="GREENHOUSE")
     def test_search_is_case_insensitive(
@@ -3247,7 +3250,7 @@ class JournalSearchTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="solar panel")
     def test_reports_when_no_matches_are_found(
@@ -3285,7 +3288,7 @@ class JournalSearchTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="")
     def test_rejects_empty_search_text(
@@ -3310,7 +3313,7 @@ class JournalSearchTests(unittest.TestCase):
 
 class JournalListingTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_lists_journals_in_date_order(
         self,
@@ -3360,7 +3363,7 @@ class JournalListingTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_reports_when_no_journals_exist(
         self,
@@ -3381,7 +3384,7 @@ class JournalListingTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_ignores_markdown_files_without_date_names(
         self,
@@ -3422,7 +3425,7 @@ class JournalListingTests(unittest.TestCase):
 
 class ViewJournalTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="2026-08-01")
     def test_displays_selected_journal(
@@ -3468,7 +3471,7 @@ class ViewJournalTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="2026-08-02")
     def test_reports_when_journal_does_not_exist(
@@ -3491,7 +3494,7 @@ class ViewJournalTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="not-a-date")
     def test_rejects_invalid_date(
