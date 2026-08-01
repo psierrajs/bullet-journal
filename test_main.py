@@ -10,6 +10,7 @@ from main import (
     append_line,
     cancel_task,
     complete_task,
+    create_daily_journal,
     delete_task,
     edit_task,
     get_section_lines,
@@ -1698,6 +1699,76 @@ class MigrateTaskTests(unittest.TestCase):
 
             self.assertFalse(tomorrow_file.exists())
             mock_pause.assert_called_once()
+
+class DailyJournalCreationTests(unittest.TestCase):
+
+    def test_creates_daily_journal_with_correct_template(self):
+        journal_date = date(2026, 8, 1)
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            create_daily_journal(
+                journal_file,
+                journal_date
+            )
+
+            self.assertTrue(journal_file.exists())
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                expected_content
+            )
+
+    def test_does_not_overwrite_existing_journal(self):
+        journal_date = date(2026, 8, 1)
+
+        existing_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Existing task\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                existing_content,
+                encoding="utf-8"
+            )
+
+            create_daily_journal(
+                journal_file,
+                journal_date
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                existing_content
+            )
 
 if __name__ == "__main__":
     unittest.main()
