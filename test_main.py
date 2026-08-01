@@ -14,6 +14,7 @@ from main import (
     complete_task,
     create_daily_journal,
     delete_task,
+    edit_note,
     edit_task,
     get_section_lines,
     get_section_positions,
@@ -2193,6 +2194,216 @@ class AddEventTests(unittest.TestCase):
                 journal_file.read_text(encoding="utf-8"),
                 original_content
             )
+
+class EditNoteTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "Greenhouse was very warm"]
+    )
+    def test_edits_selected_note(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Greenhouse was warm\n"
+            "- Water level was low\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Greenhouse was very warm\n"
+            "- Water level was low\n\n"
+            "## Events\n"
+        )
+
+        note_lines = [
+            "- Greenhouse was warm",
+            "- Water level was low",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            edit_note(
+                original_content,
+                note_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                expected_content
+            )
+
+            mock_pause.assert_called_once()
+
+class EditNoteTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "Greenhouse was very warm"]
+    )
+    def test_edits_selected_note(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Greenhouse was warm\n"
+            "- Water level was low\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Greenhouse was very warm\n"
+            "- Water level was low\n\n"
+            "## Events\n"
+        )
+
+        note_lines = [
+            "- Greenhouse was warm",
+            "- Water level was low",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            edit_note(
+                original_content,
+                note_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                expected_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", ""]
+    )
+    def test_does_not_edit_note_when_new_text_is_empty(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Greenhouse was warm\n\n"
+            "## Events\n"
+        )
+
+        note_lines = [
+            "- Greenhouse was warm",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            edit_note(
+                original_content,
+                note_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", ""]
+    )
+    def test_does_not_edit_note_when_new_text_is_empty(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Greenhouse was warm\n\n"
+            "## Events\n"
+        )
+
+        note_lines = [
+            "- Greenhouse was warm",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            edit_note(
+                original_content,
+                note_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
+
+            mock_pause.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main()
