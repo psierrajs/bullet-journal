@@ -20,14 +20,11 @@ from terminal_ui import (
     select_task,
 )
 
-from main import (
-    review_previous_day,
-)
-
 from journal_actions import (
     list_journals,
     list_pending_tasks,
     search_journals,
+    review_previous_day,
     view_journal,
 )
 
@@ -3519,7 +3516,7 @@ class ViewJournalTests(unittest.TestCase):
 
 class PreviousDayReviewTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "1"]
@@ -3605,7 +3602,7 @@ class PreviousDayReviewTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     @patch("builtins.input", return_value="2")
     def test_returns_without_migrating_task(
         self,
@@ -3670,7 +3667,7 @@ class PreviousDayReviewTests(unittest.TestCase):
 
             mock_pause.assert_not_called()
 
-    @patch("main.pause")    
+    @patch("journal_actions.pause") 
     def test_reports_when_previous_journal_is_missing(
         self,
         mock_pause
@@ -3703,7 +3700,7 @@ class PreviousDayReviewTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_actions.pause")
     def test_reports_when_previous_day_has_no_pending_tasks(
         self,
         mock_pause
