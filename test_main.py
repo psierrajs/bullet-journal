@@ -14,6 +14,11 @@ from journal_storage import (
     write_journal,
 )
 
+from terminal_ui import (
+    select_line,
+    select_task,
+)
+
 from main import (
     add_event,
     add_note,
@@ -33,8 +38,6 @@ from main import (
     restore_backup,
     review_previous_day,
     search_journals,
-    select_line,
-    select_task,
     view_journal,
 )
 
