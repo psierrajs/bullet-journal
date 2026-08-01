@@ -7,6 +7,7 @@ from main import (
     append_line,
     cancel_task,
     complete_task,
+    edit_task,
     get_section_lines,
     get_section_positions,
     get_task_lines,
@@ -1198,6 +1199,163 @@ class CancelTaskTests(unittest.TestCase):
 
             self.assertEqual(
                 saved_content,
+                original_content
+            )
+
+            mock_pause.assert_called_once()
+
+class EditTaskTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "Buy vegetable seeds"]
+    )
+    def test_edits_open_task(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy vegetable seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [ ] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            edit_task(
+                original_content,
+                task_lines,
+                journal_file
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                expected_content
+            )
+
+            mock_pause.assert_called_once()
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "Purchase vegetable seeds"]
+    )
+    def test_preserves_completed_task_marker(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Purchase vegetable seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [x] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            edit_task(
+                original_content,
+                task_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                expected_content
+            )
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", ""]
+    )
+    def test_does_not_edit_when_new_text_is_empty(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [ ] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            edit_task(
+                original_content,
+                task_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
                 original_content
             )
 
