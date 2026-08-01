@@ -35,6 +35,7 @@ from main import (
     select_line,
     select_task,
     validate_journal_content,
+    view_journal,
     write_journal,
 )
 
@@ -3445,6 +3446,100 @@ class JournalListingTests(unittest.TestCase):
 
             self.assertNotIn(
                 "notes.md",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+class ViewJournalTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("builtins.input", return_value="2026-08-01")
+    def test_displays_selected_journal(
+        self,
+        mock_input,
+        mock_stdout,
+        mock_pause
+    ):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+            journal_file = journal_folder / "2026-08-01.md"
+
+            journal_file.write_text(
+                content,
+                encoding="utf-8"
+            )
+
+            view_journal(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "# Saturday, 01 August 2026",
+                output
+            )
+
+            self.assertIn(
+                "- [ ] Buy seeds",
+                output
+            )
+
+            mock_input.assert_called_once_with(
+                "Enter the date to view (YYYY-MM-DD): "
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("builtins.input", return_value="2026-08-02")
+    def test_reports_when_journal_does_not_exist(
+        self,
+        mock_input,
+        mock_stdout,
+        mock_pause
+    ):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            view_journal(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "No journal exists for 2026-08-02.",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("builtins.input", return_value="not-a-date")
+    def test_rejects_invalid_date(
+        self,
+        mock_input,
+        mock_stdout,
+        mock_pause
+    ):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            view_journal(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "Please enter a valid date in YYYY-MM-DD format.",
                 output
             )
 
