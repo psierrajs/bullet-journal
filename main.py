@@ -175,7 +175,27 @@ def add_task(content, notes_start, journal_file):
 
         _, notes_start, _ = section_positions
 
+def validate_journal_content(content):
+    tasks_start = content.find("## Tasks")
+    notes_start = content.find("## Notes")
+    events_start = content.find("## Events")
+
+    if tasks_start == -1:
+        return False
+
+    if notes_start == -1:
+        return False
+
+    if events_start == -1:
+        return False
+
+    return tasks_start < notes_start < events_start
+
 def write_journal(journal_file, content):
+    if not validate_journal_content(content):
+        print("Error: Refusing to write an invalid journal.")
+        return False
+
     temporary_file = journal_file.with_suffix(
         journal_file.suffix + ".tmp"
     )
@@ -196,6 +216,8 @@ def write_journal(journal_file, content):
         )
 
     temporary_file.replace(journal_file)
+
+    return True
 
 def restore_backup(journal_file):
     backup_file = journal_file.with_suffix(
