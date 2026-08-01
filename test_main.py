@@ -20,6 +20,7 @@ from main import (
     migrate_task,
     reopen_task,
     replace_task,
+    restore_backup,
     select_task,
     validate_journal_content,
     write_journal,
@@ -1769,6 +1770,152 @@ class DailyJournalCreationTests(unittest.TestCase):
                 saved_content,
                 existing_content
             )
+
+class RestoreBackupTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch("builtins.input", return_value="y")
+    def test_restores_backup(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        current_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        backup_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            backup_file = journal_file.with_suffix(
+                journal_file.suffix + ".bak"
+            )
+
+            journal_file.write_text(
+                current_content,
+                encoding="utf-8"
+            )
+
+            backup_file.write_text(
+                backup_content,
+                encoding="utf-8"
+            )
+
+            restore_backup(journal_file)
+
+            restored_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                restored_content,
+                backup_content
+            )
+
+            mock_input.assert_called_once_with(
+                "Restore this backup? Current changes will be replaced. [y/N]: "
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("builtins.input", return_value="n")
+    def test_keeps_current_journal_when_restore_is_cancelled(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        current_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        backup_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            backup_file = journal_file.with_suffix(
+                journal_file.suffix + ".bak"
+            )
+
+            journal_file.write_text(
+                current_content,
+                encoding="utf-8"
+            )
+
+            backup_file.write_text(
+                backup_content,
+                encoding="utf-8"
+            )
+
+            restore_backup(journal_file)
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                current_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    def test_handles_missing_backup(
+        self,
+        mock_pause
+    ):
+        current_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                current_content,
+                encoding="utf-8"
+            )
+
+            restore_backup(journal_file)
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                current_content
+            )
+
+            mock_pause.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main()
