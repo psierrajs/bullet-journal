@@ -13,6 +13,7 @@ from main import (
     cancel_task,
     complete_task,
     create_daily_journal,
+    delete_event,
     delete_note,
     delete_task,
     edit_event,
@@ -2676,6 +2677,146 @@ class EditEventTests(unittest.TestCase):
             )
 
             edit_event(
+                original_content,
+                [],
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
+
+            mock_pause.assert_called_once()
+
+class DeleteEventTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "y"]
+    )
+    def test_deletes_selected_event(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+            "- 18:00 Meeting\n"
+            "- 20:00 Water plants\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+            "- 20:00 Water plants\n"
+        )
+
+        event_lines = [
+            "- 18:00 Meeting",
+            "- 20:00 Water plants",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            delete_event(
+                original_content,
+                event_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                expected_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "n"]
+    )
+    def test_keeps_event_when_deletion_is_cancelled(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+            "- 18:00 Meeting\n"
+        )
+
+        event_lines = [
+            "- 18:00 Meeting",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            delete_event(
+                original_content,
+                event_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    def test_does_nothing_when_event_list_is_empty(
+        self,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            delete_event(
                 original_content,
                 [],
                 journal_file
