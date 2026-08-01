@@ -25,6 +25,7 @@ from main import (
     get_section_positions,
     get_task_lines,
     insert_before_section,
+    list_journals,
     list_pending_tasks,
     migrate_task,
     reopen_task,
@@ -3332,6 +3333,118 @@ class JournalSearchTests(unittest.TestCase):
 
             self.assertIn(
                 "No search text entered.",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+class JournalListingTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_lists_journals_in_date_order(
+        self,
+        mock_stdout,
+        mock_pause
+    ):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            first_file = journal_folder / "2026-07-31.md"
+            second_file = journal_folder / "2026-08-01.md"
+
+            first_file.write_text(
+                "First journal",
+                encoding="utf-8"
+            )
+
+            second_file.write_text(
+                "Second journal",
+                encoding="utf-8"
+            )
+
+            list_journals(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            first_position = output.find("2026-07-31")
+            second_position = output.find("2026-08-01")
+
+            self.assertNotEqual(first_position, -1)
+            self.assertNotEqual(second_position, -1)
+
+            self.assertLess(
+                first_position,
+                second_position
+            )
+
+            self.assertIn(
+                "Friday, 31 July 2026",
+                output
+            )
+
+            self.assertIn(
+                "Saturday, 01 August 2026",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_reports_when_no_journals_exist(
+        self,
+        mock_stdout,
+        mock_pause
+    ):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            list_journals(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "No journal files found.",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_ignores_markdown_files_without_date_names(
+        self,
+        mock_stdout,
+        mock_pause
+    ):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            valid_file = journal_folder / "2026-08-01.md"
+            invalid_file = journal_folder / "notes.md"
+
+            valid_file.write_text(
+                "Valid journal",
+                encoding="utf-8"
+            )
+
+            invalid_file.write_text(
+                "Not a dated journal",
+                encoding="utf-8"
+            )
+
+            list_journals(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "2026-08-01",
+                output
+            )
+
+            self.assertNotIn(
+                "notes.md",
                 output
             )
 
