@@ -2,63 +2,13 @@ from pathlib import Path
 from datetime import date, timedelta
 import shutil
 
-def get_task_lines(content):
-    tasks_header = "## Tasks\n"
-    notes_header = "## Notes"
+from journal_parser import (
+    get_section_lines,
+    get_section_positions,
+    get_task_lines,
+    validate_journal_content,
+)
 
-    tasks_start = content.find(tasks_header)
-
-    if tasks_start == -1:
-        return None
-
-    notes_start = content.find(notes_header, tasks_start)
-
-    if notes_start == -1:
-        return None
-
-    tasks_section = content[
-        tasks_start + len(tasks_header):notes_start
-    ]
-
-    task_lines = []
-
-    for line in tasks_section.splitlines():
-        if line.startswith("- ["):
-            task_lines.append(line)
-
-    return task_lines
-
-def get_section_lines(content, section_start, next_section_start=None):
-    if next_section_start is None:
-        section = content[section_start:]
-    else:
-        section = content[section_start:next_section_start]
-
-    lines = []
-
-    for line in section.splitlines()[1:]:
-        stripped_line = line.strip()
-
-        if stripped_line:
-            lines.append(stripped_line)
-
-    return lines
-
-def get_section_positions(content):
-    tasks_start = content.find("## Tasks\n")
-    notes_start = content.find("## Notes")
-    events_start = content.find("## Events")
-
-    if tasks_start == -1:
-        return None
-
-    if notes_start == -1:
-        return None
-
-    if events_start == -1:
-        return None
-
-    return tasks_start, notes_start, events_start
 
 def display_tasks(task_lines):
     print("\nToday's tasks:\n")
@@ -175,21 +125,7 @@ def add_task(content, notes_start, journal_file):
 
         _, notes_start, _ = section_positions
 
-def validate_journal_content(content):
-    tasks_start = content.find("## Tasks")
-    notes_start = content.find("## Notes")
-    events_start = content.find("## Events")
 
-    if tasks_start == -1:
-        return False
-
-    if notes_start == -1:
-        return False
-
-    if events_start == -1:
-        return False
-
-    return tasks_start < notes_start < events_start
 
 def write_journal(journal_file, content):
     if not validate_journal_content(content):
@@ -302,10 +238,10 @@ def complete_task(content, task_lines, journal_file):
     print(f"Completed: {completed_task}")
 
 def reopen_task(
-        content, 
-        task_lines, 
-        journal_file
-    ):
+    content,
+    task_lines,
+    journal_file
+):
     if not task_lines:
         print("There are no tasks to reopen.")
         return
@@ -345,6 +281,7 @@ def reopen_task(
     )
 
     print(f"Reopened: {reopened_task}")
+    pause()
 
 def cancel_task(content, task_lines, journal_file):
     if not task_lines:

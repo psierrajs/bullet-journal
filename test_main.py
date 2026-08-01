@@ -21,9 +21,6 @@ from main import (
     edit_event,
     edit_note,
     edit_task,
-    get_section_lines,
-    get_section_positions,
-    get_task_lines,
     insert_before_section,
     list_journals,
     list_pending_tasks,
@@ -31,12 +28,19 @@ from main import (
     reopen_task,
     replace_task,
     restore_backup,
+    review_previous_day,
     search_journals,
     select_line,
     select_task,
-    validate_journal_content,
     view_journal,
     write_journal,
+)
+
+from journal_parser import (
+    get_section_lines,
+    get_section_positions,
+    get_task_lines,
+    validate_journal_content,
 )
 
 class JournalValidationTests(unittest.TestCase):
@@ -3541,6 +3545,244 @@ class ViewJournalTests(unittest.TestCase):
             self.assertIn(
                 "Please enter a valid date in YYYY-MM-DD format.",
                 output
+            )
+
+            mock_pause.assert_called_once()
+
+class PreviousDayReviewTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "1"]
+    )
+    def test_migrates_pending_task_from_previous_day(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        today = date(2026, 8, 1)
+
+        previous_content = (
+            "# Friday, 31 July 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n"
+            "- [x] Test the pump\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        today_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_previous_content = (
+            "# Friday, 31 July 2026\n\n"
+            "## Tasks\n\n"
+            "- [>] Buy seeds\n"
+            "- [x] Test the pump\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_today_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            previous_file = (
+                journal_folder
+                / "2026-07-31.md"
+            )
+
+            journal_file = (
+                journal_folder
+                / "2026-08-01.md"
+            )
+
+            previous_file.write_text(
+                previous_content,
+                encoding="utf-8"
+            )
+
+            journal_file.write_text(
+                today_content,
+                encoding="utf-8"
+            )
+
+            review_previous_day(
+                journal_folder,
+                journal_file,
+                today
+            )
+
+            self.assertEqual(
+                previous_file.read_text(encoding="utf-8"),
+                expected_previous_content
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                expected_today_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("builtins.input", return_value="2")
+    def test_returns_without_migrating_task(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        today = date(2026, 8, 1)
+
+        previous_content = (
+            "# Friday, 31 July 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        today_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            previous_file = (
+                journal_folder
+                / "2026-07-31.md"
+            )
+
+            journal_file = (
+                journal_folder
+                / "2026-08-01.md"
+            )
+
+            previous_file.write_text(
+                previous_content,
+                encoding="utf-8"
+            )
+
+            journal_file.write_text(
+                today_content,
+                encoding="utf-8"
+            )
+
+            review_previous_day(
+                journal_folder,
+                journal_file,
+                today
+            )
+
+            self.assertEqual(
+                previous_file.read_text(encoding="utf-8"),
+                previous_content
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                today_content
+            )
+
+            mock_pause.assert_not_called()
+
+    @patch("main.pause")    
+    def test_reports_when_previous_journal_is_missing(
+        self,
+        mock_pause
+    ):
+        today = date(2026, 8, 1)
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            journal_file = (
+                journal_folder
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                (
+                    "# Saturday, 01 August 2026\n\n"
+                    "## Tasks\n\n"
+                    "## Notes\n\n"
+                    "## Events\n"
+                ),
+                encoding="utf-8"
+            )
+
+            review_previous_day(
+                journal_folder,
+                journal_file,
+                today
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    def test_reports_when_previous_day_has_no_pending_tasks(
+        self,
+        mock_pause
+    ):
+        today = date(2026, 8, 1)
+
+        previous_content = (
+            "# Friday, 31 July 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Buy seeds\n"
+            "- [-] Cancel order\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            previous_file = (
+                journal_folder
+                / "2026-07-31.md"
+            )
+
+            journal_file = (
+                journal_folder
+                / "2026-08-01.md"
+            )
+
+            previous_file.write_text(
+                previous_content,
+                encoding="utf-8"
+            )
+
+            journal_file.write_text(
+                (
+                    "# Saturday, 01 August 2026\n\n"
+                    "## Tasks\n\n"
+                    "## Notes\n\n"
+                    "## Events\n"
+                ),
+                encoding="utf-8"
+            )
+
+            review_previous_day(
+                journal_folder,
+                journal_file,
+                today
             )
 
             mock_pause.assert_called_once()
