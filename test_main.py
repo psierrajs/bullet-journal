@@ -13,6 +13,7 @@ from main import (
     cancel_task,
     complete_task,
     create_daily_journal,
+    delete_note,
     delete_task,
     edit_note,
     edit_task,
@@ -2395,6 +2396,146 @@ class EditNoteTests(unittest.TestCase):
             edit_note(
                 original_content,
                 note_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
+
+            mock_pause.assert_called_once()
+
+class DeleteNoteTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "y"]
+    )
+    def test_deletes_selected_note(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Greenhouse was warm\n"
+            "- Water level was low\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Water level was low\n\n"
+            "## Events\n"
+        )
+
+        note_lines = [
+            "- Greenhouse was warm",
+            "- Water level was low",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            delete_note(
+                original_content,
+                note_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                expected_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "n"]
+    )
+    def test_keeps_note_when_deletion_is_cancelled(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "- Greenhouse was warm\n\n"
+            "## Events\n"
+        )
+
+        note_lines = [
+            "- Greenhouse was warm",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            delete_note(
+                original_content,
+                note_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    def test_does_nothing_when_note_list_is_empty(
+        self,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            delete_note(
+                original_content,
+                [],
                 journal_file
             )
 
