@@ -7,6 +7,7 @@ from main import (
     append_line,
     cancel_task,
     complete_task,
+    delete_task,
     edit_task,
     get_section_lines,
     get_section_positions,
@@ -1351,6 +1352,154 @@ class EditTaskTests(unittest.TestCase):
             edit_task(
                 original_content,
                 task_lines,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
+
+            mock_pause.assert_called_once()
+
+class DeleteTaskTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "y"]
+    )
+    def test_deletes_selected_task(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n"
+            "- [ ] Test the pump\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Test the pump\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [ ] Buy seeds",
+            "- [ ] Test the pump",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            delete_task(
+                original_content,
+                task_lines,
+                journal_file
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                expected_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch(
+        "builtins.input",
+        side_effect=["1", "n"]
+    )
+    def test_keeps_task_when_deletion_is_cancelled(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [ ] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            delete_task(
+                original_content,
+                task_lines,
+                journal_file
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                original_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    def test_does_nothing_when_task_list_is_empty(
+        self,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            delete_task(
+                original_content,
+                [],
                 journal_file
             )
 
