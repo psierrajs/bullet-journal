@@ -10,6 +10,7 @@ from main import (
     get_section_positions,
     get_task_lines,
     insert_before_section,
+    reopen_task,
     replace_task,
     select_task,
     validate_journal_content,
@@ -881,6 +882,161 @@ class CompleteTaskTests(unittest.TestCase):
             )
 
             complete_task(
+                original_content,
+                task_lines,
+                journal_file
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                original_content
+            )
+
+            mock_pause.assert_called_once()
+
+class ReopenTaskTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch("builtins.input", return_value="1")
+    def test_reopens_completed_task(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [x] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            reopen_task(
+                original_content,
+                task_lines,
+                journal_file
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                expected_content
+            )
+
+    @patch("main.pause")
+    @patch("builtins.input", return_value="1")
+    def test_reopens_cancelled_task(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [-] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [-] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            reopen_task(
+                original_content,
+                task_lines,
+                journal_file
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                expected_content
+            )
+
+    @patch("main.pause")
+    @patch("builtins.input", return_value="1")
+    def test_does_not_change_open_task(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [ ] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            reopen_task(
                 original_content,
                 task_lines,
                 journal_file
