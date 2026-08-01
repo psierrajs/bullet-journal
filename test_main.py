@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from pathlib import Path
 import tempfile
 import unittest
@@ -9,6 +10,7 @@ from main import (
     get_task_lines,
     insert_before_section,
     replace_task,
+    select_task,
     validate_journal_content,
     write_journal,
 )
@@ -707,6 +709,83 @@ class LineAppendingTests(unittest.TestCase):
                 saved_content,
                 expected_content
             )
+
+class TaskSelectionTests(unittest.TestCase):
+
+    @patch("builtins.input", return_value="2")
+    def test_selects_task_by_number(self, mock_input):
+        task_lines = [
+            "- [ ] Buy seeds",
+            "- [ ] Test the pump",
+            "- [x] Prepare soil",
+        ]
+
+        result = select_task(
+            task_lines,
+            "Enter the task number: "
+        )
+
+        self.assertEqual(
+            result,
+            "- [ ] Test the pump"
+        )
+
+        mock_input.assert_called_once_with(
+            "Enter the task number: "
+        )
+
+    @patch("builtins.input", return_value="abc")
+    def test_returns_none_for_non_numeric_input(self, mock_input):
+        task_lines = [
+            "- [ ] Buy seeds",
+            "- [ ] Test the pump",
+        ]
+
+        result = select_task(
+            task_lines,
+            "Enter the task number: "
+        )
+
+        self.assertIsNone(result)
+
+    @patch("builtins.input", return_value="5")
+    def test_returns_none_for_number_outside_range(
+        self,
+        mock_input
+    ):
+        task_lines = [
+            "- [ ] Buy seeds",
+            "- [ ] Test the pump",
+        ]
+
+        result = select_task(
+            task_lines,
+            "Enter the task number: "
+        )
+
+        self.assertIsNone(result)
+
+    @patch("builtins.input", return_value="0")
+    def test_returns_none_for_zero(self, mock_input):
+        task_lines = [
+            "- [ ] Buy seeds",
+            "- [ ] Test the pump",
+        ]
+
+        result = select_task(
+            task_lines,
+            "Enter the task number: "
+        )
+
+        self.assertIsNone(result)
+
+    def test_returns_none_when_task_list_is_empty(self):
+        result = select_task(
+            [],
+            "Enter the task number: "
+        )
+
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
