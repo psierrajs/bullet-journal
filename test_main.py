@@ -7,6 +7,7 @@ from pathlib import Path
 
 
 from main import (
+    add_note,
     append_line,
     cancel_task,
     complete_task,
@@ -1916,6 +1917,153 @@ class RestoreBackupTests(unittest.TestCase):
             )
 
             mock_pause.assert_called_once()
+
+class AddNoteTests(unittest.TestCase):
+
+    @patch(
+        "builtins.input",
+        side_effect=["Greenhouse was warm", ""]
+    )
+    def test_adds_note_before_events_section(
+        self,
+        mock_input
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n"
+            "- Greenhouse was warm\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            events_start = original_content.find(
+                "## Events"
+            )
+
+            add_note(
+                original_content,
+                events_start,
+                journal_file
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                expected_content
+            )
+
+    @patch(
+        "builtins.input",
+        side_effect=[
+            "Greenhouse was warm",
+            "Water level was low",
+            ""
+        ]
+    )
+    def test_adds_multiple_notes(
+        self,
+        mock_input
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n"
+            "- Greenhouse was warm\n"
+            "- Water level was low\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            events_start = original_content.find(
+                "## Events"
+            )
+
+            add_note(
+                original_content,
+                events_start,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                expected_content
+            )
+
+    @patch("builtins.input", return_value="")
+    def test_does_not_add_empty_note(
+        self,
+        mock_input
+    ):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            events_start = original_content.find(
+                "## Events"
+            )
+
+            add_note(
+                original_content,
+                events_start,
+                journal_file
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
 
 if __name__ == "__main__":
     unittest.main()
