@@ -6,34 +6,36 @@ from unittest.mock import patch
 from pathlib import Path
 from io import StringIO
 
+from journal_storage import (
+    append_line,
+    create_daily_journal,
+    insert_before_section,
+    replace_task,
+    write_journal,
+)
 
 from main import (
     add_event,
     add_note,
     add_task,
-    append_line,
     cancel_task,
     complete_task,
-    create_daily_journal,
     delete_event,
     delete_note,
     delete_task,
     edit_event,
     edit_note,
     edit_task,
-    insert_before_section,
     list_journals,
     list_pending_tasks,
     migrate_task,
     reopen_task,
-    replace_task,
     restore_backup,
     review_previous_day,
     search_journals,
     select_line,
     select_task,
     view_journal,
-    write_journal,
 )
 
 from journal_parser import (
