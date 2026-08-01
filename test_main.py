@@ -1,8 +1,10 @@
 import unittest
 
-from main import validate_journal_content
-from main import get_task_lines, validate_journal_content
-
+from main import (
+    get_section_positions,
+    get_task_lines,
+    validate_journal_content,
+)
 
 class JournalValidationTests(unittest.TestCase):
 
@@ -142,7 +144,61 @@ class TaskParsingTests(unittest.TestCase):
         result = get_task_lines(content)
 
         self.assertIsNone(result)
+class SectionPositionTests(unittest.TestCase):
 
+    def test_returns_section_positions(self):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "- Check water level\n\n"
+            "## Events\n\n"
+            "- 18:00 Meeting\n"
+        )
+
+        result = get_section_positions(content)
+
+        expected = (
+            content.find("## Tasks\n"),
+            content.find("## Notes"),
+            content.find("## Events"),
+        )
+
+        self.assertEqual(result, expected)
+
+    def test_returns_none_when_tasks_section_is_missing(self):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        result = get_section_positions(content)
+
+        self.assertIsNone(result)
+
+    def test_returns_none_when_notes_section_is_missing(self):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Events\n"
+        )
+
+        result = get_section_positions(content)
+
+        self.assertIsNone(result)
+
+    def test_returns_none_when_events_section_is_missing(self):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n"
+        )
+
+        result = get_section_positions(content)
+
+        self.assertIsNone(result)
 
 if __name__ == "__main__":
     unittest.main()
