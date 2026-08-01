@@ -6,6 +6,7 @@ from main import (
     get_section_lines,
     get_section_positions,
     get_task_lines,
+    replace_task,
     validate_journal_content,
     write_journal,
 )
@@ -68,7 +69,6 @@ class JournalValidationTests(unittest.TestCase):
         result = validate_journal_content(content)
 
         self.assertFalse(result)
-
 
 class TaskParsingTests(unittest.TestCase):
 
@@ -148,6 +148,7 @@ class TaskParsingTests(unittest.TestCase):
         result = get_task_lines(content)
 
         self.assertIsNone(result)
+
 class SectionPositionTests(unittest.TestCase):
 
     def test_returns_section_positions(self):
@@ -433,6 +434,99 @@ class JournalWritingTests(unittest.TestCase):
             )
 
             self.assertFalse(temporary_file.exists())
+
+class TaskReplacementTests(unittest.TestCase):
+
+    def test_replaces_selected_task(self):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n"
+            "- [ ] Test the pump\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Buy seeds\n"
+            "- [ ] Test the pump\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            replace_task(
+                original_content,
+                "- [ ] Buy seeds",
+                "- [x] Buy seeds",
+                journal_file
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                expected_content
+            )
+    def test_replaces_only_first_matching_task(self):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Water plants\n"
+            "- [ ] Water plants\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Water plants\n"
+            "- [ ] Water plants\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            replace_task(
+                original_content,
+                "- [ ] Water plants",
+                "- [x] Water plants",
+                journal_file
+            )
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                expected_content
+            )
 
 if __name__ == "__main__":
     unittest.main()

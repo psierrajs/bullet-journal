@@ -219,6 +219,18 @@ def write_journal(journal_file, content):
 
     return True
 
+def replace_task(content, old_task, new_task, journal_file):
+    new_content = content.replace(
+        old_task,
+        new_task,
+        1
+    )
+
+    return write_journal(
+        journal_file,
+        new_content
+    )
+
 def restore_backup(journal_file):
     backup_file = journal_file.with_suffix(
         journal_file.suffix + ".bak"
