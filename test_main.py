@@ -1,6 +1,7 @@
 import unittest
 
 from main import (
+    get_section_lines,
     get_section_positions,
     get_task_lines,
     validate_journal_content,
@@ -199,6 +200,103 @@ class SectionPositionTests(unittest.TestCase):
         result = get_section_positions(content)
 
         self.assertIsNone(result)
+
+class SectionLineTests(unittest.TestCase):
+
+    def test_returns_lines_between_two_sections(self):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "- Check water level\n"
+            "- Greenhouse was warm\n\n"
+            "## Events\n\n"
+            "- 18:00 Meeting\n"
+        )
+
+        notes_start = content.find("## Notes")
+        events_start = content.find("## Events")
+
+        result = get_section_lines(
+            content,
+            notes_start,
+            events_start
+        )
+
+        expected = [
+            "- Check water level",
+            "- Greenhouse was warm",
+        ]
+
+        self.assertEqual(result, expected)
+
+    def test_returns_lines_until_end_of_file(self):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n\n"
+            "- 18:00 Meeting\n"
+            "- 20:00 Water plants\n"
+        )
+
+        events_start = content.find("## Events")
+
+        result = get_section_lines(
+            content,
+            events_start
+        )
+
+        expected = [
+            "- 18:00 Meeting",
+            "- 20:00 Water plants",
+        ]
+
+        self.assertEqual(result, expected)
+
+    def test_ignores_blank_lines(self):
+        content = (
+            "## Notes\n\n"
+            "- First note\n\n"
+            "\n"
+            "- Second note\n"
+            "## Events\n"
+        )
+
+        notes_start = content.find("## Notes")
+        events_start = content.find("## Events")
+
+        result = get_section_lines(
+            content,
+            notes_start,
+            events_start
+        )
+
+        self.assertEqual(
+            result,
+            [
+                "- First note",
+                "- Second note",
+            ]
+        )
+
+    def test_returns_empty_list_for_empty_section(self):
+        content = (
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        notes_start = content.find("## Notes")
+        events_start = content.find("## Events")
+
+        result = get_section_lines(
+            content,
+            notes_start,
+            events_start
+        )
+
+        self.assertEqual(result, [])
 
 if __name__ == "__main__":
     unittest.main()
