@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import date
 from unittest.mock import patch
 from pathlib import Path
+from io import StringIO
 
 
 from main import (
@@ -24,6 +25,7 @@ from main import (
     get_section_positions,
     get_task_lines,
     insert_before_section,
+    list_pending_tasks,
     migrate_task,
     reopen_task,
     replace_task,
@@ -3059,6 +3061,112 @@ class LineSelectionTests(unittest.TestCase):
         )
 
         self.assertIsNone(result)
+
+class PendingTaskListTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_lists_pending_tasks_from_multiple_days(
+        self,
+        mock_stdout,
+        mock_pause
+    ):
+        first_content = (
+            "# Friday, 31 July 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n"
+            "- [x] Test the pump\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        second_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Water plants\n"
+            "- [-] Cancel order\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            first_file = journal_folder / "2026-07-31.md"
+            second_file = journal_folder / "2026-08-01.md"
+
+            first_file.write_text(
+                first_content,
+                encoding="utf-8"
+            )
+
+            second_file.write_text(
+                second_content,
+                encoding="utf-8"
+            )
+
+            list_pending_tasks(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "2026-07-31: - [ ] Buy seeds",
+                output
+            )
+
+            self.assertIn(
+                "2026-08-01: - [ ] Water plants",
+                output
+            )
+
+            self.assertNotIn(
+                "- [x] Test the pump",
+                output
+            )
+
+            self.assertNotIn(
+                "- [-] Cancel order",
+                output
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_reports_when_no_pending_tasks_exist(
+        self,
+        mock_stdout,
+        mock_pause
+    ):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Buy seeds\n"
+            "- [-] Cancel order\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            journal_file = journal_folder / "2026-08-01.md"
+
+            journal_file.write_text(
+                content,
+                encoding="utf-8"
+            )
+
+            list_pending_tasks(journal_folder)
+
+            output = mock_stdout.getvalue()
+
+            self.assertIn(
+                "No pending tasks found.",
+                output
+            )
+
+            mock_pause.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main()
