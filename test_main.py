@@ -1,3 +1,5 @@
+from pathlib import Path
+import tempfile
 import unittest
 
 from main import (
@@ -5,6 +7,7 @@ from main import (
     get_section_positions,
     get_task_lines,
     validate_journal_content,
+    write_journal,
 )
 
 class JournalValidationTests(unittest.TestCase):
@@ -296,7 +299,140 @@ class SectionLineTests(unittest.TestCase):
             events_start
         )
 
-        self.assertEqual(result, [])
+        self.assertEqual(result, [])    
+
+class JournalWritingTests(unittest.TestCase):
+
+    def test_writes_valid_journal_content(self):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Test the application\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            result = write_journal(
+                journal_file,
+                content
+            )
+
+            self.assertTrue(result)
+            self.assertTrue(journal_file.exists())
+
+            saved_content = journal_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                saved_content,
+                content
+            )
+
+    def test_rejects_invalid_journal_content(self):
+        invalid_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            result = write_journal(
+                journal_file,
+                invalid_content
+            )
+
+            self.assertFalse(result)
+            self.assertFalse(journal_file.exists())
+
+    def test_creates_backup_of_existing_journal(self):
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Original task\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        updated_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Original task\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            write_journal(
+                journal_file,
+                updated_content
+            )
+
+            backup_file = journal_file.with_suffix(
+                journal_file.suffix + ".bak"
+            )
+
+            self.assertTrue(backup_file.exists())
+
+            backup_content = backup_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertEqual(
+                backup_content,
+                original_content
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                updated_content
+            )
+
+    def test_removes_temporary_file_after_writing(self):
+        content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_file = (
+                Path(temporary_directory)
+                / "2026-08-01.md"
+            )
+
+            write_journal(
+                journal_file,
+                content
+            )
+
+            temporary_file = journal_file.with_suffix(
+                journal_file.suffix + ".tmp"
+            )
+
+            self.assertFalse(temporary_file.exists())
 
 if __name__ == "__main__":
     unittest.main()
