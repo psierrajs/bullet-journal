@@ -1,7 +1,10 @@
-from unittest.mock import patch
-from pathlib import Path
 import tempfile
 import unittest
+from pathlib import Path
+from datetime import date
+from unittest.mock import patch
+from pathlib import Path
+
 
 from main import (
     append_line,
@@ -13,6 +16,7 @@ from main import (
     get_section_positions,
     get_task_lines,
     insert_before_section,
+    migrate_task,
     reopen_task,
     replace_task,
     select_task,
@@ -1508,6 +1512,191 @@ class DeleteTaskTests(unittest.TestCase):
                 original_content
             )
 
+            mock_pause.assert_called_once()
+
+class MigrateTaskTests(unittest.TestCase):
+
+    @patch("main.pause")
+    @patch("builtins.input", return_value="1")
+    def test_migrates_open_task_to_next_day(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        today = date(2026, 8, 1)
+
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [ ] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        expected_today_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [>] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [ ] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            journal_file = (
+                journal_folder
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            migrate_task(
+                original_content,
+                task_lines,
+                journal_file,
+                journal_folder,
+                today
+            )
+
+            tomorrow_file = (
+                journal_folder
+                / "2026-08-02.md"
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                expected_today_content
+            )
+
+            self.assertTrue(tomorrow_file.exists())
+
+            tomorrow_content = tomorrow_file.read_text(
+                encoding="utf-8"
+            )
+
+            self.assertIn(
+                "- [ ] Buy seeds",
+                tomorrow_content
+            )
+
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("builtins.input", return_value="1")
+    def test_does_not_migrate_completed_task(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        today = date(2026, 8, 1)
+
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [x] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [x] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            journal_file = (
+                journal_folder
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            migrate_task(
+                original_content,
+                task_lines,
+                journal_file,
+                journal_folder,
+                today
+            )
+
+            tomorrow_file = (
+                journal_folder
+                / "2026-08-02.md"
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
+
+            self.assertFalse(tomorrow_file.exists())
+            mock_pause.assert_called_once()
+
+    @patch("main.pause")
+    @patch("builtins.input", return_value="1")
+    def test_does_not_migrate_cancelled_task(
+        self,
+        mock_input,
+        mock_pause
+    ):
+        today = date(2026, 8, 1)
+
+        original_content = (
+            "# Saturday, 01 August 2026\n\n"
+            "## Tasks\n\n"
+            "- [-] Buy seeds\n\n"
+            "## Notes\n\n"
+            "## Events\n"
+        )
+
+        task_lines = [
+            "- [-] Buy seeds",
+        ]
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            journal_folder = Path(temporary_directory)
+
+            journal_file = (
+                journal_folder
+                / "2026-08-01.md"
+            )
+
+            journal_file.write_text(
+                original_content,
+                encoding="utf-8"
+            )
+
+            migrate_task(
+                original_content,
+                task_lines,
+                journal_file,
+                journal_folder,
+                today
+            )
+
+            tomorrow_file = (
+                journal_folder
+                / "2026-08-02.md"
+            )
+
+            self.assertEqual(
+                journal_file.read_text(encoding="utf-8"),
+                original_content
+            )
+
+            self.assertFalse(tomorrow_file.exists())
             mock_pause.assert_called_once()
 
 if __name__ == "__main__":
