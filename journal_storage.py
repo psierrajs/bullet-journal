@@ -1,6 +1,7 @@
 import shutil
 
 from journal_parser import validate_journal_content
+from terminal_ui import pause
 
 def write_journal(journal_file, content):
     if not validate_journal_content(content):
@@ -29,6 +30,39 @@ def write_journal(journal_file, content):
     temporary_file.replace(journal_file)
 
     return True
+
+def restore_backup(journal_file):
+    backup_file = journal_file.with_suffix(
+        journal_file.suffix + ".bak"
+    )
+
+    if not backup_file.exists():
+        print("No backup file exists for today.")
+        pause()
+        return
+
+    print(f"Backup found: {backup_file.name}")
+
+    confirmation = input(
+        "Restore this backup? Current changes will be replaced. [y/N]: "
+    ).strip().lower()
+
+    if confirmation != "y":
+        print("Restore cancelled.")
+        pause()
+        return
+
+    backup_content = backup_file.read_text(
+        encoding="utf-8"
+    )
+
+    write_journal(
+        journal_file,
+        backup_content
+    )
+
+    print("Backup restored successfully.")
+    pause()
 
 def replace_task(content, old_task, new_task, journal_file):
     new_content = content.replace(
@@ -83,3 +117,4 @@ def create_daily_journal(journal_file, today):
         "## Events\n",
         encoding="utf-8"        
     )
+

@@ -11,6 +11,7 @@ from journal_storage import (
     create_daily_journal,
     insert_before_section,
     replace_task,
+    restore_backup,
     write_journal,
 )
 
@@ -20,11 +21,8 @@ from terminal_ui import (
 )
 
 from main import (
-    add_task,
     list_journals,
     list_pending_tasks,
-    migrate_task,
-    restore_backup,
     review_previous_day,
     search_journals,
     view_journal,
@@ -38,10 +36,12 @@ from journal_parser import (
 )
 
 from task_actions import (
+    add_task,
     cancel_task,
     complete_task,
     delete_task,
     edit_task,
+    migrate_task,
     reopen_task,
 )
 
@@ -1546,7 +1546,7 @@ class DeleteTaskTests(unittest.TestCase):
 
 class MigrateTaskTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_migrates_open_task_to_next_day(
         self,
@@ -1619,7 +1619,7 @@ class MigrateTaskTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_does_not_migrate_completed_task(
         self,
@@ -1674,7 +1674,7 @@ class MigrateTaskTests(unittest.TestCase):
             self.assertFalse(tomorrow_file.exists())
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_does_not_migrate_cancelled_task(
         self,
@@ -1801,7 +1801,7 @@ class DailyJournalCreationTests(unittest.TestCase):
 
 class RestoreBackupTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("journal_storage.pause")
     @patch("builtins.input", return_value="y")
     def test_restores_backup(
         self,
@@ -1861,7 +1861,7 @@ class RestoreBackupTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_storage.pause")
     @patch("builtins.input", return_value="n")
     def test_keeps_current_journal_when_restore_is_cancelled(
         self,
@@ -1913,7 +1913,7 @@ class RestoreBackupTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("journal_storage.pause")
     def test_handles_missing_backup(
         self,
         mock_pause

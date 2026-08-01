@@ -26,155 +26,16 @@ from journal_parser import (
 )
 
 from task_actions import (
+    add_task,
     cancel_task,
     complete_task,
     delete_task,
     edit_task,
+    migrate_task,
     reopen_task,
 )
 
-def add_task(content, notes_start, journal_file):
-    while True:
-        task = input(
-            "Enter a new task, or press Enter to finish: "
-        ).strip()
 
-        if not task:
-            return
-
-        task_line = f"- [ ] {task}\n"
-
-        insert_before_section(
-            content,
-            notes_start,
-            task_line,
-            journal_file
-        )
-
-        print(f'Task added: "{task}"')
-
-        content = journal_file.read_text(encoding="utf-8")
-        section_positions = get_section_positions(content)
-
-        if section_positions is None:
-            print("Error: Invalid journal structure.")
-            return
-
-        _, notes_start, _ = section_positions
-
-def restore_backup(journal_file):
-    backup_file = journal_file.with_suffix(
-        journal_file.suffix + ".bak"
-    )
-
-    if not backup_file.exists():
-        print("No backup file exists for today.")
-        pause()
-        return
-
-    print(f"Backup found: {backup_file.name}")
-
-    confirmation = input(
-        "Restore this backup? Current changes will be replaced. [y/N]: "
-    ).strip().lower()
-
-    if confirmation != "y":
-        print("Restore cancelled.")
-        pause()
-        return
-
-    backup_content = backup_file.read_text(
-        encoding="utf-8"
-    )
-
-    write_journal(
-        journal_file,
-        backup_content
-    )
-
-    print("Backup restored successfully.")
-    pause()
-
-def migrate_task(
-    content,
-    task_lines,
-    journal_file,
-    journal_folder,
-    today
-):
-
-    if not task_lines:
-        print("There are no tasks to migrate.")
-        return
-
-    selected_task = select_task(
-        task_lines,
-        "Enter the number of the task to migrate: "
-    )
-
-    if selected_task is None:
-        return
-
-    if selected_task.lower().startswith("- [x]"):
-        print("A completed task cannot be migrated.")
-        pause()
-        return
-
-    if selected_task.startswith("- [-]"):
-        print("A cancelled task cannot be migrated.")
-        pause()
-        return
-
-    if selected_task.startswith("- [>]"):
-        print("That task has already been migrated.")
-        pause()
-        return
-
-    tomorrow = today + timedelta(days=1)
-
-    tomorrow_filename = f"{tomorrow.isoformat()}.md"
-    tomorrow_file = journal_folder / tomorrow_filename
-
-    create_daily_journal(tomorrow_file, tomorrow)
-
-    migrated_task = selected_task.replace(
-        "- [ ]",
-        "- [>]",
-        1
-    )
-
-    replace_task(
-        content,
-        selected_task,
-        migrated_task,
-        journal_file
-    )
-
-    tomorrow_content = tomorrow_file.read_text(
-        encoding="utf-8"
-    )
-
-    tomorrow_positions = get_section_positions(
-        tomorrow_content
-    )
-
-    if tomorrow_positions is None:
-        print("Error: Invalid structure in tomorrow's journal.")
-        return
-
-    _, tomorrow_notes_start, _ = tomorrow_positions
-
-    new_task = selected_task
-
-    insert_before_section(
-        tomorrow_content,
-        tomorrow_notes_start,
-        new_task + "\n",
-        tomorrow_file
-    )
-
-    print(f"Migrated to {tomorrow.isoformat()}: {migrated_task}")
-    pause()
 
 def view_journal(journal_folder):
     date_text = input(
