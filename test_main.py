@@ -20,13 +20,7 @@ from terminal_ui import (
 )
 
 from main import (
-    add_event,
-    add_note,
     add_task,
-    delete_event,
-    delete_note,
-    edit_event,
-    edit_note,
     list_journals,
     list_pending_tasks,
     migrate_task,
@@ -49,6 +43,15 @@ from task_actions import (
     delete_task,
     edit_task,
     reopen_task,
+)
+
+from entry_actions import (
+    add_event,
+    add_note,
+    delete_event,
+    delete_note,
+    edit_event,
+    edit_note,
 )
 
 class JournalValidationTests(unittest.TestCase):
@@ -2219,7 +2222,7 @@ class AddEventTests(unittest.TestCase):
 
 class EditNoteTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "Greenhouse was very warm"]
@@ -2278,7 +2281,7 @@ class EditNoteTests(unittest.TestCase):
 
 class EditNoteTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "Greenhouse was very warm"]
@@ -2335,53 +2338,7 @@ class EditNoteTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
-    @patch(
-        "builtins.input",
-        side_effect=["1", ""]
-    )
-    def test_does_not_edit_note_when_new_text_is_empty(
-        self,
-        mock_input,
-        mock_pause
-    ):
-        original_content = (
-            "# Saturday, 01 August 2026\n\n"
-            "## Tasks\n\n"
-            "## Notes\n\n"
-            "- Greenhouse was warm\n\n"
-            "## Events\n"
-        )
-
-        note_lines = [
-            "- Greenhouse was warm",
-        ]
-
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            journal_file = (
-                Path(temporary_directory)
-                / "2026-08-01.md"
-            )
-
-            journal_file.write_text(
-                original_content,
-                encoding="utf-8"
-            )
-
-            edit_note(
-                original_content,
-                note_lines,
-                journal_file
-            )
-
-            self.assertEqual(
-                journal_file.read_text(encoding="utf-8"),
-                original_content
-            )
-
-            mock_pause.assert_called_once()
-
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", ""]
@@ -2429,7 +2386,7 @@ class EditNoteTests(unittest.TestCase):
 
 class DeleteNoteTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "y"]
@@ -2485,7 +2442,7 @@ class DeleteNoteTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "n"]
@@ -2531,7 +2488,7 @@ class DeleteNoteTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     def test_does_nothing_when_note_list_is_empty(
         self,
         mock_pause
@@ -2569,7 +2526,7 @@ class DeleteNoteTests(unittest.TestCase):
 
 class EditEventTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "19:00 Project meeting"]
@@ -2626,7 +2583,7 @@ class EditEventTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", ""]
@@ -2672,7 +2629,7 @@ class EditEventTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     def test_does_nothing_when_event_list_is_empty(
         self,
         mock_pause
@@ -2710,7 +2667,7 @@ class EditEventTests(unittest.TestCase):
 
 class DeleteEventTests(unittest.TestCase):
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "y"]
@@ -2766,7 +2723,7 @@ class DeleteEventTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "n"]
@@ -2812,7 +2769,7 @@ class DeleteEventTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("main.pause")
+    @patch("entry_actions.pause")
     def test_does_nothing_when_event_list_is_empty(
         self,
         mock_pause
