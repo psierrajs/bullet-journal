@@ -1,3 +1,5 @@
+from journal_parser import count_tasks_by_status
+
 def display_tasks(task_lines):
     print("\nToday's tasks:\n")
 
@@ -11,6 +13,14 @@ def display_tasks(task_lines):
     ):
         print(f"{number}. {task_line}")
 
+def display_task_summary(content):
+    counts = count_tasks_by_status(content)
+
+    print("\nTask summary:")
+    print(f"Open: {counts['open']}")
+    print(f"Completed: {counts['completed']}")
+    print(f"Cancelled: {counts['cancelled']}")
+    print(f"Migrated: {counts['migrated']}")
 
 def display_journal_details(
     note_lines,

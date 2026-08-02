@@ -1,11 +1,13 @@
 import unittest
 from io import StringIO
 from unittest.mock import patch
+from io import StringIO
 
 from terminal_ui import (
     display_journal_details,
     display_menu,
     display_tasks,
+    display_task_summary,
     pause,
     select_line,
     select_task,
@@ -173,6 +175,55 @@ class TaskSelectionTests(unittest.TestCase):
         )
 
         self.assertIsNone(result)
+
+class TaskSummaryDisplayTests(unittest.TestCase):
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_displays_task_counts(self, mock_stdout):
+        content = """# Sunday, 02 August 2026
+
+## Tasks
+
+- [ ] Buy seeds
+- [ ] Check water level
+- [x] Test the pump
+- [-] Repair old hose
+- [>] Order compost
+
+## Notes
+
+## Events
+"""
+
+        display_task_summary(content)
+
+        output = mock_stdout.getvalue()
+
+        self.assertIn("Task summary:", output)
+        self.assertIn("Open: 2", output)
+        self.assertIn("Completed: 1", output)
+        self.assertIn("Cancelled: 1", output)
+        self.assertIn("Migrated: 1", output)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_displays_zero_counts_when_no_tasks_exist(self, mock_stdout):
+        content = """# Sunday, 02 August 2026
+
+## Tasks
+
+## Notes
+
+## Events
+"""
+
+        display_task_summary(content)
+
+        output = mock_stdout.getvalue()
+
+        self.assertIn("Open: 0", output)
+        self.assertIn("Completed: 0", output)
+        self.assertIn("Cancelled: 0", output)
+        self.assertIn("Migrated: 0", output)
 
 if __name__ == "__main__":
     unittest.main()
