@@ -206,7 +206,7 @@ class TaskSummaryDisplayTests(unittest.TestCase):
         self.assertIn("Completed: 1", output)
         self.assertIn("Cancelled: 1", output)
         self.assertIn("Migrated: 1", output)
-        self.assertIn("Progress: [##--------] 20%", output)
+        self.assertIn("Progress: [###-------] 33%", output)
 
     @patch("sys.stdout", new_callable=StringIO)
     def test_displays_zero_counts_when_no_tasks_exist(self, mock_stdout):

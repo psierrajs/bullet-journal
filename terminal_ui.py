@@ -38,12 +38,18 @@ def build_progress_bar(progress, width=10):
 def display_task_summary(content):
     counts = count_tasks_by_status(content)
     total = sum(counts.values())
+    actionable_total = (
+        counts["open"]
+        + counts["completed"]
+    )
 
-    if total == 0:
+    if actionable_total == 0:
         progress = 0
     else:
         progress = round(
-            counts["completed"] / total * 100
+            counts["completed"]
+            / actionable_total
+            * 100
         )
 
     progress_bar = build_progress_bar(progress)
