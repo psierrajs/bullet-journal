@@ -5,6 +5,7 @@ from journal_parser import (
     get_section_positions,
     get_task_lines,
     validate_journal_content,
+    count_tasks_by_status,
 )
 
 class JournalValidationTests(unittest.TestCase):
@@ -297,6 +298,59 @@ class SectionLineTests(unittest.TestCase):
         )
 
         self.assertEqual(result, [])    
+
+class TaskStatusCountTests(unittest.TestCase):
+
+    def test_counts_tasks_by_status(self):
+        content = """# Sunday, 02 August 2026
+
+## Tasks
+
+- [ ] Buy seeds
+- [ ] Check water level
+- [x] Test the pump
+- [-] Repair old hose
+- [>] Order compost
+
+## Notes
+
+## Events
+"""
+
+        result = count_tasks_by_status(content)
+
+        self.assertEqual(
+            result,
+            {
+                "open": 2,
+                "completed": 1,
+                "cancelled": 1,
+                "migrated": 1,
+            },
+        )
+
+    def test_returns_zero_counts_when_no_tasks_exist(self):
+        content = """# Sunday, 02 August 2026
+
+## Tasks
+
+## Notes
+
+## Events
+"""
+
+        result = count_tasks_by_status(content)
+
+        self.assertEqual(
+            result,
+            {
+                "open": 0,
+                "completed": 0,
+                "cancelled": 0,
+                "migrated": 0,
+            },
+        )
+
 
 if __name__ == "__main__":
     main()

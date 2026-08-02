@@ -71,3 +71,26 @@ def validate_journal_content(content):
         return False
 
     return tasks_start < notes_start < events_start
+
+def count_tasks_by_status(content):
+    task_lines = get_task_lines(content)
+
+    counts = {
+        "open": 0,
+        "completed": 0,
+        "cancelled": 0,
+        "migrated": 0,
+    }
+
+    for task in task_lines:
+        if task.startswith("- [ ]"):
+            counts["open"] += 1
+        elif task.startswith("- [x]"):
+            counts["completed"] += 1
+        elif task.startswith("- [-]"):
+            counts["cancelled"] += 1
+        elif task.startswith("- [>]"):
+            counts["migrated"] += 1
+
+    return counts
+
