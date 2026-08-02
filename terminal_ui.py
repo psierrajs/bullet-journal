@@ -24,8 +24,11 @@ def display_task_summary(content):
 
 def display_journal_details(
     note_lines,
-    event_lines
+    event_lines,
+    journal_content
 ):
+    display_task_summary(journal_content)
+
     print("\nToday's notes:\n")
 
     if not note_lines:
@@ -41,7 +44,6 @@ def display_journal_details(
     else:
         for event_line in event_lines:
             print(event_line)
-
 
 def display_menu():
     print("\nChoose an option:")

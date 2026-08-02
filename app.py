@@ -84,7 +84,11 @@ def main():
             break
 
         display_tasks(task_lines)
-        display_journal_details(note_lines, event_lines)
+        display_journal_details(
+            note_lines,
+            event_lines,
+            content
+        )
         display_menu()
 
         choice = input("\nOption: ").strip()
