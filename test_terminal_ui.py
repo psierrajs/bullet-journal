@@ -225,5 +225,41 @@ class TaskSummaryDisplayTests(unittest.TestCase):
         self.assertIn("Cancelled: 0", output)
         self.assertIn("Migrated: 0", output)
 
+class JournalDetailsDisplayTests(unittest.TestCase):
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_displays_summary_notes_and_events(self, mock_stdout):
+        journal_content = """# Sunday, 02 August 2026
+
+## Tasks
+
+- [ ] Buy seeds
+- [x] Test the pump
+
+## Notes
+
+- Greenhouse was warm
+
+## Events
+
+- 18:00 Meeting
+"""
+
+        display_journal_details(
+            ["- Greenhouse was warm"],
+            ["- 18:00 Meeting"],
+            journal_content
+        )
+
+        output = mock_stdout.getvalue()
+
+        self.assertIn("Task summary:", output)
+        self.assertIn("Open: 1", output)
+        self.assertIn("Completed: 1", output)
+        self.assertIn("Today's notes:", output)
+        self.assertIn("- Greenhouse was warm", output)
+        self.assertIn("Today's events:", output)
+        self.assertIn("- 18:00 Meeting", output)
+
 if __name__ == "__main__":
     unittest.main()
