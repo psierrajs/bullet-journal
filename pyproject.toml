@@ -1,0 +1,14 @@
+[project]
+name = "bullet-journal"
+version = "0.1.0"
+description = "A local-first command-line bullet journal using Markdown files."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/psierrajs/bullet-journal"
+
+[tool.unittest]
+start-directory = "."
+pattern = "test_*.py"
