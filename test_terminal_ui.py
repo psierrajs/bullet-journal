@@ -205,6 +205,7 @@ class TaskSummaryDisplayTests(unittest.TestCase):
         self.assertIn("Completed: 1", output)
         self.assertIn("Cancelled: 1", output)
         self.assertIn("Migrated: 1", output)
+        self.assertIn("Progress: 20%", output)
 
     @patch("sys.stdout", new_callable=StringIO)
     def test_displays_zero_counts_when_no_tasks_exist(self, mock_stdout):
@@ -225,6 +226,7 @@ class TaskSummaryDisplayTests(unittest.TestCase):
         self.assertIn("Completed: 0", output)
         self.assertIn("Cancelled: 0", output)
         self.assertIn("Migrated: 0", output)
+        self.assertIn("Progress: 0%", output)
 
 class JournalDetailsDisplayTests(unittest.TestCase):
 
@@ -261,6 +263,7 @@ class JournalDetailsDisplayTests(unittest.TestCase):
         self.assertIn("- Greenhouse was warm", output)
         self.assertIn("Today's events:", output)
         self.assertIn("- 18:00 Meeting", output)
+        self.assertIn("Progress: 50%", output)
 
 if __name__ == "__main__":
     unittest.main()

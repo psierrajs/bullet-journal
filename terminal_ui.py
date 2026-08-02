@@ -17,12 +17,20 @@ def display_task_summary(content):
     counts = count_tasks_by_status(content)
     total = sum(counts.values())
 
+    if total == 0:
+        progress = 0
+    else:
+        progress = round(
+            counts["completed"] / total * 100
+        )
+
     print("\nTask summary:")
     print(f"Total: {total}")
     print(f"Open: {counts['open']}")
     print(f"Completed: {counts['completed']}")
     print(f"Cancelled: {counts['cancelled']}")
     print(f"Migrated: {counts['migrated']}")
+    print(f"Progress: {progress}%")
 
 def display_journal_details(
     note_lines,
