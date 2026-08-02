@@ -15,8 +15,10 @@ def display_tasks(task_lines):
 
 def display_task_summary(content):
     counts = count_tasks_by_status(content)
+    total = sum(counts.values())
 
     print("\nTask summary:")
+    print(f"Total: {total}")
     print(f"Open: {counts['open']}")
     print(f"Completed: {counts['completed']}")
     print(f"Cancelled: {counts['cancelled']}")

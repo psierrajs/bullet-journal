@@ -200,6 +200,7 @@ class TaskSummaryDisplayTests(unittest.TestCase):
         output = mock_stdout.getvalue()
 
         self.assertIn("Task summary:", output)
+        self.assertIn("Total: 5", output)
         self.assertIn("Open: 2", output)
         self.assertIn("Completed: 1", output)
         self.assertIn("Cancelled: 1", output)
