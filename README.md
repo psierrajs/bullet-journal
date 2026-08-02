@@ -1,5 +1,7 @@
 # Bullet Journal
 
+[![Tests](https://github.com/psierrajs/bullet-journal/actions/workflows/tests.yml/badge.svg)](https://github.com/psierrajs/bullet-journal/actions/workflows/tests.yml)
+
 A local-first command-line bullet journal written in Python.
 
 The application stores journal entries as human-readable Markdown files, so the data remains portable and can be opened without the application.
