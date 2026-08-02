@@ -4,6 +4,7 @@ from unittest.mock import patch
 from io import StringIO
 
 from terminal_ui import (
+    build_progress_bar,
     display_journal_details,
     display_menu,
     display_tasks,
@@ -205,7 +206,7 @@ class TaskSummaryDisplayTests(unittest.TestCase):
         self.assertIn("Completed: 1", output)
         self.assertIn("Cancelled: 1", output)
         self.assertIn("Migrated: 1", output)
-        self.assertIn("Progress: 20%", output)
+        self.assertIn("Progress: [##--------] 20%", output)
 
     @patch("sys.stdout", new_callable=StringIO)
     def test_displays_zero_counts_when_no_tasks_exist(self, mock_stdout):
@@ -226,7 +227,7 @@ class TaskSummaryDisplayTests(unittest.TestCase):
         self.assertIn("Completed: 0", output)
         self.assertIn("Cancelled: 0", output)
         self.assertIn("Migrated: 0", output)
-        self.assertIn("Progress: 0%", output)
+        self.assertIn("Progress: [----------] 0%", output)
 
 class JournalDetailsDisplayTests(unittest.TestCase):
 
@@ -263,7 +264,24 @@ class JournalDetailsDisplayTests(unittest.TestCase):
         self.assertIn("- Greenhouse was warm", output)
         self.assertIn("Today's events:", output)
         self.assertIn("- 18:00 Meeting", output)
-        self.assertIn("Progress: 50%", output)
+        self.assertIn("Progress: [#####-----] 50%", output)
+
+class ProgressBarTests(unittest.TestCase):
+
+    def test_builds_empty_progress_bar(self):
+        result = build_progress_bar(0)
+
+        self.assertEqual(result, "[----------]")
+
+    def test_builds_half_complete_progress_bar(self):
+        result = build_progress_bar(50)
+
+        self.assertEqual(result, "[#####-----]")
+
+    def test_builds_complete_progress_bar(self):
+        result = build_progress_bar(100)
+
+        self.assertEqual(result, "[##########]")
 
 if __name__ == "__main__":
     unittest.main()

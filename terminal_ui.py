@@ -13,6 +13,17 @@ def display_tasks(task_lines):
     ):
         print(f"{number}. {task_line}")
 
+def build_progress_bar(progress, width=10):
+    completed_blocks = round(progress / 100 * width)
+    remaining_blocks = width - completed_blocks
+
+    return (
+        "["
+        + "#" * completed_blocks
+        + "-" * remaining_blocks
+        + "]"
+    )
+
 def display_task_summary(content):
     counts = count_tasks_by_status(content)
     total = sum(counts.values())
@@ -24,13 +35,15 @@ def display_task_summary(content):
             counts["completed"] / total * 100
         )
 
+    progress_bar = build_progress_bar(progress)
+
     print("\nTask summary:")
     print(f"Total: {total}")
     print(f"Open: {counts['open']}")
     print(f"Completed: {counts['completed']}")
     print(f"Cancelled: {counts['cancelled']}")
     print(f"Migrated: {counts['migrated']}")
-    print(f"Progress: {progress}%")
+    print(f"Progress: {progress_bar} {progress}%")
 
 def display_journal_details(
     note_lines,
