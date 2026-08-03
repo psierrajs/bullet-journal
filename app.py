@@ -1,3 +1,5 @@
+from version import __version__
+
 from datetime import date
 from pathlib import Path
 
@@ -42,6 +44,7 @@ from terminal_ui import (
 
 
 def main():
+    print(f"\nBullet Journal v{__version__}")
     today = date.today()
     filename = f"{today.isoformat()}.md"
 
