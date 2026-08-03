@@ -206,10 +206,16 @@ class TaskSummaryDisplayTests(unittest.TestCase):
         self.assertIn("Completed: 1", output)
         self.assertIn("Cancelled: 1", output)
         self.assertIn("Migrated: 1", output)
-        self.assertIn("Progress: [###-------] 33%", output)
+        self.assertIn(
+            "Progress: [###-------] 33%",
+            output
+        )
 
     @patch("sys.stdout", new_callable=StringIO)
-    def test_displays_zero_counts_when_no_tasks_exist(self, mock_stdout):
+    def test_displays_zero_counts_when_no_tasks_exist(
+        self,
+        mock_stdout
+    ):
         content = """# Sunday, 02 August 2026
 
 ## Tasks
@@ -223,11 +229,46 @@ class TaskSummaryDisplayTests(unittest.TestCase):
 
         output = mock_stdout.getvalue()
 
+        self.assertIn("Total: 0", output)
         self.assertIn("Open: 0", output)
         self.assertIn("Completed: 0", output)
         self.assertIn("Cancelled: 0", output)
         self.assertIn("Migrated: 0", output)
-        self.assertIn("Progress: [----------] 0%", output)
+        self.assertIn(
+            "Progress: [----------] 0%",
+            output
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_ignores_cancelled_and_migrated_tasks_in_progress(
+        self,
+        mock_stdout
+    ):
+        content = """# Sunday, 02 August 2026
+
+## Tasks
+
+- [x] Completed task
+- [-] Cancelled task
+- [>] Migrated task
+
+## Notes
+
+## Events
+"""
+
+        display_task_summary(content)
+
+        output = mock_stdout.getvalue()
+
+        self.assertIn("Total: 3", output)
+        self.assertIn("Completed: 1", output)
+        self.assertIn("Cancelled: 1", output)
+        self.assertIn("Migrated: 1", output)
+        self.assertIn(
+            "Progress: [##########] 100%",
+            output
+        )
 
 class JournalDetailsDisplayTests(unittest.TestCase):
 
@@ -265,6 +306,7 @@ class JournalDetailsDisplayTests(unittest.TestCase):
         self.assertIn("Today's events:", output)
         self.assertIn("- 18:00 Meeting", output)
         self.assertIn("Progress: [#####-----] 50%", output)
+
 
 class ProgressBarTests(unittest.TestCase):
 
