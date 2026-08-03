@@ -8,24 +8,41 @@ The application stores journal entries as human-readable Markdown files, so the 
 
 ## Features
 
-- Create one journal file per day
-- Add, edit and delete tasks
-- Complete, reopen, cancel and migrate tasks
-- Add, edit and delete notes
-- Add, edit and delete events
-- Review pending tasks from the previous day
-- Search across journal files
-- List existing journals
-- Display pending tasks from multiple days
-- Create backups before modifying journal files
-- Restore the latest journal backup
+* Create one journal file per day
+* Add, edit and delete tasks
+* Complete, reopen, cancel and migrate tasks
+* Add, edit and delete notes
+* Add, edit and delete events
+* Review pending tasks from the previous day
+* Search across journal files
+* List existing journals
+* Display pending tasks from multiple days
+* Create backups before modifying journal files
+* Restore the latest journal backup
+* Display daily task statistics and completion progress
 
 ## Task markers
 
-- `[ ]` Open task
-- `[x]` Completed task
-- `[-]` Cancelled task
-- `[>]` Migrated task
+* `[ ]` Open task
+* `[x]` Completed task
+* `[-]` Cancelled task
+* `[>]` Migrated task
+
+## Task summary
+
+The application displays a summary of the current day:
+
+```text
+Task summary:
+Total: 4
+Open: 2
+Completed: 1
+Cancelled: 0
+Migrated: 1
+Progress: [###-------] 33%
+```
+
+The progress percentage is calculated using only open and completed tasks. Cancelled and migrated tasks are included in the total count but do not reduce completion progress.
 
 ## Journal format
 
@@ -33,11 +50,11 @@ Daily journals are stored in the `journal` directory using filenames such as:
 
 ```text
 2026-08-02.md
-````
+```
 
 Each file follows this structure:
 
-
+```markdown
 # Sunday, 02 August 2026
 
 ## Tasks
@@ -45,7 +62,7 @@ Each file follows this structure:
 ## Notes
 
 ## Events
-
+```
 
 ## Requirements
 
@@ -72,6 +89,8 @@ Run the tests in verbose mode:
 python3 -m unittest -v
 ```
 
+The current test suite contains 105 unit tests.
+
 ## Project structure
 
 ```text
@@ -90,6 +109,8 @@ bullet-journal/
 ├── test_journal_storage.py
 ├── test_task_actions.py
 ├── test_terminal_ui.py
+├── CHANGELOG.md
+├── pyproject.toml
 └── README.md
 ```
 
@@ -100,20 +121,3 @@ bullet-journal/
 * Responsibilities are separated into focused modules
 * Journal changes are validated and backed up
 * Behaviour is protected by automated unit tests
-
-````
-
-Save it, then run:
-
-```bash
-python3 -m unittest -b
-git status
-````
-
-If all 96 tests still pass, commit:
-
-```bash
-git add README.md
-git commit -m "Add project documentation"
-git push
-```
