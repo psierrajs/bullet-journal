@@ -6,13 +6,15 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+No changes yet.
+
 ### Planned
 
 * Review terminal messages and menu consistency
 * Perform a complete manual test of every menu option
 * Prepare the first stable release
 
-## [0.1.0] - 2026-08-03
+## [1.0.0] - 2026-08-03
 
 ### Added
 
