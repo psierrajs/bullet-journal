@@ -12,6 +12,7 @@ from journal_parser import (
 from journal_storage import (
     create_daily_journal,
     insert_before_section,
+    replace_task,
 )
 from version import __version__
 
@@ -78,7 +79,75 @@ def fill_section(frame, lines):
             text=line,
         ).pack(anchor="w", pady=2)
 
-def add_task_gui(root, journal_file, task_frame):
+
+def create_section(parent, title):
+    frame = ttk.LabelFrame(
+        parent,
+        text=title,
+        padding=10,
+    )
+    frame.pack(
+        fill="both",
+        expand=True,
+        pady=(0, 10),
+    )
+
+    return frame
+
+
+def fill_task_section(
+    frame,
+    task_lines,
+    selected_task_var,
+):
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    if not task_lines:
+        ttk.Label(
+            frame,
+            text="No tasks yet.",
+        ).pack(anchor="w")
+        return
+
+    for task_line in task_lines:
+        ttk.Radiobutton(
+            frame,
+            text=task_line,
+            variable=selected_task_var,
+            value=task_line,
+        ).pack(anchor="w", pady=2)
+
+
+def refresh_tasks(
+    journal_file,
+    task_frame,
+    selected_task_var,
+):
+    updated_content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    updated_tasks = get_task_lines(updated_content)
+
+    if updated_tasks is None:
+        raise ValueError("Invalid journal structure.")
+
+    selected_task_var.set("")
+
+    fill_task_section(
+        task_frame,
+        updated_tasks,
+        selected_task_var,
+    )
+
+
+def add_task_gui(
+    root,
+    journal_file,
+    task_frame,
+    selected_task_var,
+):
     task_text = simpledialog.askstring(
         "Add task",
         "Task:",
@@ -103,33 +172,47 @@ def add_task_gui(root, journal_file, task_frame):
         journal_file,
     )
 
-    updated_content = journal_file.read_text(
-        encoding="utf-8"
-    )
-
-    updated_tasks = get_task_lines(updated_content)
-
-    if updated_tasks is None:
-        raise ValueError("Invalid journal structure.")
-
-    fill_section(
+    refresh_tasks(
+        journal_file,
         task_frame,
-        updated_tasks,
-    )
-    
-def create_section(parent, title):
-    frame = ttk.LabelFrame(
-        parent,
-        text=title,
-        padding=10,
-    )
-    frame.pack(
-        fill="both",
-        expand=True,
-        pady=(0, 10),
+        selected_task_var,
     )
 
-    return frame
+
+def complete_task_gui(
+    journal_file,
+    task_frame,
+    selected_task_var,
+):
+    selected_task = selected_task_var.get()
+
+    if not selected_task:
+        return
+
+    if not selected_task.startswith("- [ ]"):
+        return
+
+    content = journal_file.read_text(encoding="utf-8")
+
+    completed_task = selected_task.replace(
+        "- [ ]",
+        "- [x]",
+        1,
+    )
+
+    replace_task(
+        content,
+        selected_task,
+        completed_task,
+        journal_file,
+    )
+
+    refresh_tasks(
+        journal_file,
+        task_frame,
+        selected_task_var,
+    )
+
 
 def main():
     root = tk.Tk()
@@ -158,25 +241,45 @@ def main():
         text=today.strftime("%A, %d %B %Y"),
     ).pack(anchor="w", pady=(0, 20))
 
+    selected_task_var = tk.StringVar()
+
     task_frame = create_section(
         main_frame,
         "Tasks",
     )
 
-    fill_section(
+    fill_task_section(
         task_frame,
         task_lines,
+        selected_task_var,
+    )
+
+    button_frame = ttk.Frame(main_frame)
+    button_frame.pack(
+        fill="x",
+        pady=(0, 20),
     )
 
     ttk.Button(
-        main_frame,
+        button_frame,
         text="Add Task",
         command=lambda: add_task_gui(
             root,
             journal_file,
             task_frame,
+            selected_task_var,
         ),
-    ).pack(anchor="w", pady=(0, 20))
+    ).pack(side="left", padx=(0, 10))
+
+    ttk.Button(
+        button_frame,
+        text="Complete Task",
+        command=lambda: complete_task_gui(
+            journal_file,
+            task_frame,
+            selected_task_var,
+        ),
+    ).pack(side="left")
 
     note_frame = create_section(
         main_frame,
@@ -203,3 +306,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
