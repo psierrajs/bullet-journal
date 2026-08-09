@@ -521,8 +521,17 @@ def main():
         pady=(0, 20),
     )
 
+    primary_buttons = ttk.Frame(button_frame)
+    primary_buttons.pack(
+        anchor="w",
+        pady=(0, 8),
+    )
+
+    status_buttons = ttk.Frame(button_frame)
+    status_buttons.pack(anchor="w")
+
     ttk.Button(
-        button_frame,
+        primary_buttons,
         text="Add Task",
         command=lambda: add_task_gui(
             root,
@@ -530,40 +539,10 @@ def main():
             task_frame,
             selected_task_var,
         ),
-    ).pack(side="left", padx=(0, 10))
+    ).pack(side="left", padx=(0, 8))
 
     ttk.Button(
-        button_frame,
-        text="Complete Task",
-        command=lambda: complete_task_gui(
-            journal_file,
-            task_frame,
-            selected_task_var,
-        ),
-    ).pack(side="left")
-
-    ttk.Button(
-        button_frame,
-        text="Reopen Task",
-        command=lambda: reopen_task_gui(
-            journal_file,
-            task_frame,
-            selected_task_var,
-        ),
-    ).pack(side="left", padx=(10, 0))
-
-    ttk.Button(
-        button_frame,
-        text="Cancel Task",
-        command=lambda: cancel_task_gui(
-            journal_file,
-            task_frame,
-            selected_task_var,
-        ),
-    ).pack(side="left", padx=(10, 0))
-
-    ttk.Button(
-        button_frame,
+        primary_buttons,
         text="Edit Task",
         command=lambda: edit_task_gui(
             root,
@@ -571,10 +550,10 @@ def main():
             task_frame,
             selected_task_var,
         ),
-    ).pack(side="left", padx=(10, 0))
+    ).pack(side="left", padx=(0, 8))
 
     ttk.Button(
-        button_frame,
+        primary_buttons,
         text="Delete Task",
         command=lambda: delete_task_gui(
             root,
@@ -582,18 +561,48 @@ def main():
             task_frame,
             selected_task_var,
         ),
-    ).pack(side="left", padx=(10, 0))
+    ).pack(side="left")
 
     ttk.Button(
-        button_frame,
-        text="Migrate Task",
+        status_buttons,
+        text="Complete",
+        command=lambda: complete_task_gui(
+            journal_file,
+            task_frame,
+            selected_task_var,
+        ),
+    ).pack(side="left", padx=(0, 8))
+
+    ttk.Button(
+        status_buttons,
+        text="Reopen",
+        command=lambda: reopen_task_gui(
+            journal_file,
+            task_frame,
+            selected_task_var,
+        ),
+    ).pack(side="left", padx=(0, 8))
+
+    ttk.Button(
+        status_buttons,
+        text="Cancel",
+        command=lambda: cancel_task_gui(
+            journal_file,
+            task_frame,
+            selected_task_var,
+        ),
+    ).pack(side="left", padx=(0, 8))
+
+    ttk.Button(
+        status_buttons,
+        text="Migrate",
         command=lambda: migrate_task_gui(
             root,
             journal_file,
             task_frame,
             selected_task_var,
         ),
-    ).pack(side="left", padx=(10, 0))
+    ).pack(side="left")
 
     note_frame = create_section(
         main_frame,
