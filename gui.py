@@ -288,6 +288,50 @@ def cancel_task_gui(
         selected_task_var,
     )
 
+def edit_task_gui(
+    root,
+    journal_file,
+    task_frame,
+    selected_task_var,
+):
+    selected_task = selected_task_var.get()
+
+    if not selected_task:
+        return
+
+    current_text = selected_task[6:]
+
+    new_text = simpledialog.askstring(
+        "Edit task",
+        "Task:",
+        initialvalue=current_text,
+        parent=root,
+    )
+
+    if not new_text:
+        return
+
+    task_marker = selected_task[:5]
+
+    edited_task = f"{task_marker} {new_text}"
+
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    replace_task(
+        content,
+        selected_task,
+        edited_task,
+        journal_file,
+    )
+
+    refresh_tasks(
+        journal_file,
+        task_frame,
+        selected_task_var,
+    )
+
 def main():
     root = tk.Tk()
     root.title(f"Bullet Journal v{__version__}")
@@ -369,6 +413,17 @@ def main():
         button_frame,
         text="Cancel Task",
         command=lambda: cancel_task_gui(
+            journal_file,
+            task_frame,
+            selected_task_var,
+        ),
+    ).pack(side="left", padx=(10, 0))
+
+    ttk.Button(
+        button_frame,
+        text="Edit Task",
+        command=lambda: edit_task_gui(
+            root,
             journal_file,
             task_frame,
             selected_task_var,
