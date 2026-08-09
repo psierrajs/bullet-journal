@@ -213,6 +213,80 @@ def complete_task_gui(
         selected_task_var,
     )
 
+def reopen_task_gui(
+    journal_file,
+    task_frame,
+    selected_task_var,
+):
+    selected_task = selected_task_var.get()
+
+    if not selected_task:
+        return
+
+    if selected_task.startswith("- [x]"):
+        reopened_task = selected_task.replace(
+            "- [x]",
+            "- [ ]",
+            1,
+        )
+    elif selected_task.startswith("- [-]"):
+        reopened_task = selected_task.replace(
+            "- [-]",
+            "- [ ]",
+            1,
+        )
+    else:
+        return
+
+    content = journal_file.read_text(encoding="utf-8")
+
+    replace_task(
+        content,
+        selected_task,
+        reopened_task,
+        journal_file,
+    )
+
+    refresh_tasks(
+        journal_file,
+        task_frame,
+        selected_task_var,
+    )
+
+
+def cancel_task_gui(
+    journal_file,
+    task_frame,
+    selected_task_var,
+):
+    selected_task = selected_task_var.get()
+
+    if not selected_task:
+        return
+
+    if not selected_task.startswith("- [ ]"):
+        return
+
+    content = journal_file.read_text(encoding="utf-8")
+
+    cancelled_task = selected_task.replace(
+        "- [ ]",
+        "- [-]",
+        1,
+    )
+
+    replace_task(
+        content,
+        selected_task,
+        cancelled_task,
+        journal_file,
+    )
+
+    refresh_tasks(
+        journal_file,
+        task_frame,
+        selected_task_var,
+    )
 
 def main():
     root = tk.Tk()
@@ -280,6 +354,26 @@ def main():
             selected_task_var,
         ),
     ).pack(side="left")
+
+    ttk.Button(
+        button_frame,
+        text="Reopen Task",
+        command=lambda: reopen_task_gui(
+            journal_file,
+            task_frame,
+            selected_task_var,
+        ),
+    ).pack(side="left", padx=(10, 0))
+
+    ttk.Button(
+        button_frame,
+        text="Cancel Task",
+        command=lambda: cancel_task_gui(
+            journal_file,
+            task_frame,
+            selected_task_var,
+        ),
+    ).pack(side="left", padx=(10, 0))
 
     note_frame = create_section(
         main_frame,
