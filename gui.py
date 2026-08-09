@@ -475,6 +475,63 @@ def migrate_task_gui(
         selected_task_var,
     )
 
+def add_note_gui(
+    root,
+    journal_file,
+    note_frame,
+):
+    note_text = simpledialog.askstring(
+        "Add note",
+        "Note:",
+        parent=root,
+    )
+
+    if not note_text:
+        return
+
+    content = journal_file.read_text(encoding="utf-8")
+    section_positions = get_section_positions(content)
+
+    if section_positions is None:
+        raise ValueError("Invalid journal structure.")
+
+    tasks_start, notes_start, events_start = section_positions
+
+    insert_before_section(
+        content,
+        events_start,
+        f"- {note_text}",
+        journal_file,
+    )
+
+    updated_content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    updated_positions = get_section_positions(
+        updated_content
+    )
+
+    if updated_positions is None:
+        raise ValueError("Invalid journal structure.")
+
+    (
+        updated_tasks_start,
+        updated_notes_start,
+        updated_events_start,
+    ) = updated_positions
+
+    updated_notes = get_section_lines(
+        updated_content,
+        updated_notes_start,
+        updated_events_start,
+    )
+
+    fill_section(
+        note_frame,
+        updated_notes,
+    )
+
 def main():
     root = tk.Tk()
     root.title(f"Bullet Journal v{__version__}")
@@ -613,6 +670,16 @@ def main():
         note_frame,
         note_lines,
     )
+
+    ttk.Button(
+    main_frame,
+    text="Add Note",
+    command=lambda: add_note_gui(
+        root,
+        journal_file,
+        note_frame,
+    ),
+).pack(anchor="w", pady=(0, 20))
 
     event_frame = create_section(
         main_frame,
