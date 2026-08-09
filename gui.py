@@ -606,6 +606,64 @@ def edit_note_gui(
         selected_note_var,
     )
 
+def fill_event_section(
+    frame,
+    event_lines,
+    selected_event_var,
+):
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    if not event_lines:
+        ttk.Label(
+            frame,
+            text="No events yet.",
+        ).pack(anchor="w")
+        return
+
+    for event_line in event_lines:
+        ttk.Radiobutton(
+            frame,
+            text=event_line,
+            variable=selected_event_var,
+            value=event_line,
+        ).pack(anchor="w", pady=2)
+
+def refresh_events(
+    journal_file,
+    event_frame,
+    selected_event_var,
+):
+    updated_content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    updated_positions = get_section_positions(
+        updated_content
+    )
+
+    if updated_positions is None:
+        raise ValueError("Invalid journal structure.")
+
+    (
+        updated_tasks_start,
+        updated_notes_start,
+        updated_events_start,
+    ) = updated_positions
+
+    updated_events = get_section_lines(
+        updated_content,
+        updated_events_start,
+    )
+
+    selected_event_var.set("")
+
+    fill_event_section(
+        event_frame,
+        updated_events,
+        selected_event_var,
+    )
+
 def fill_note_section(
     frame,
     note_lines,
@@ -706,6 +764,7 @@ def add_event_gui(
     root,
     journal_file,
     event_frame,
+    selected_event_var,
 ):
     event_text = simpledialog.askstring(
         "Add event",
@@ -716,7 +775,9 @@ def add_event_gui(
     if not event_text:
         return
 
-    content = journal_file.read_text(encoding="utf-8")
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
 
     new_content = (
         content.rstrip()
@@ -728,31 +789,105 @@ def add_event_gui(
         new_content,
     )
 
-    updated_content = journal_file.read_text(
+    refresh_events(
+        journal_file,
+        event_frame,
+        selected_event_var,
+    )
+
+def edit_event_gui(
+    root,
+    journal_file,
+    event_frame,
+    selected_event_var,
+):
+    selected_event = selected_event_var.get()
+
+    if not selected_event:
+        return
+
+    current_text = selected_event.removeprefix("- ").strip()
+
+    new_text = simpledialog.askstring(
+        "Edit event",
+        "Event:",
+        initialvalue=current_text,
+        parent=root,
+    )
+
+    if not new_text:
+        return
+
+    edited_event = f"- {new_text}"
+
+    content = journal_file.read_text(
         encoding="utf-8"
     )
 
-    updated_positions = get_section_positions(
-        updated_content
+    new_content = content.replace(
+        selected_event,
+        edited_event,
+        1,
     )
 
-    if updated_positions is None:
-        raise ValueError("Invalid journal structure.")
-
-    (
-        updated_tasks_start,
-        updated_notes_start,
-        updated_events_start,
-    ) = updated_positions
-
-    updated_events = get_section_lines(
-        updated_content,
-        updated_events_start,
+    write_journal(
+        journal_file,
+        new_content,
     )
 
-    fill_section(
+    refresh_events(
+        journal_file,
         event_frame,
-        updated_events,
+        selected_event_var,
+    )
+
+
+def delete_event_gui(
+    root,
+    journal_file,
+    event_frame,
+    selected_event_var,
+):
+    selected_event = selected_event_var.get()
+
+    if not selected_event:
+        return
+
+    confirmed = messagebox.askyesno(
+        "Delete event",
+        f"Delete this event?\n\n{selected_event}",
+        parent=root,
+    )
+
+    if not confirmed:
+        return
+
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    new_content = content.replace(
+        selected_event + "\n",
+        "",
+        1,
+    )
+
+    if new_content == content:
+        new_content = content.replace(
+            selected_event,
+            "",
+            1,
+        )
+
+    write_journal(
+        journal_file,
+        new_content,
+    )
+
+    refresh_events(
+        journal_file,
+        event_frame,
+        selected_event_var,
     )
 
 def main():
@@ -885,7 +1020,7 @@ def main():
     ).pack(side="left")
 
     selected_note_var = tk.StringVar()
-    
+
     note_frame = create_section(
         main_frame,
         "Notes",
@@ -936,25 +1071,57 @@ def main():
         ),
     ).pack(side="left")
 
+    selected_event_var = tk.StringVar()
+
     event_frame = create_section(
         main_frame,
         "Events",
     )
 
-    fill_section(
+    fill_event_section(
         event_frame,
         event_lines,
+        selected_event_var,
+    )
+
+    event_button_frame = ttk.Frame(main_frame)
+    event_button_frame.pack(
+        anchor="w",
+        pady=(0, 20),
     )
 
     ttk.Button(
-        main_frame,
+        event_button_frame,
         text="Add Event",
         command=lambda: add_event_gui(
             root,
             journal_file,
             event_frame,
+            selected_event_var,
         ),
-    ).pack(anchor="w", pady=(0, 20))
+    ).pack(side="left", padx=(0, 8))
+
+    ttk.Button(
+        event_button_frame,
+        text="Edit Event",
+        command=lambda: edit_event_gui(
+            root,
+            journal_file,
+            event_frame,
+            selected_event_var,
+        ),
+    ).pack(side="left", padx=(0, 8))
+
+    ttk.Button(
+        event_button_frame,
+        text="Delete Event",
+        command=lambda: delete_event_gui(
+            root,
+            journal_file,
+            event_frame,
+            selected_event_var,
+        ),
+    ).pack(side="left")
 
     root.mainloop()
 
