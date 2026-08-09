@@ -9,12 +9,6 @@ from journal_storage import (
 )
 from terminal_ui import pause, select_task
 
-from journal_storage import (
-    replace_task,
-    write_journal,
-)
-from terminal_ui import pause, select_task
-
 def complete_task(content, task_lines, journal_file):
     if not task_lines:
         print("There are no tasks to complete.")
@@ -51,52 +45,6 @@ def complete_task(content, task_lines, journal_file):
     )
 
     print(f"Completed: {completed_task}")
-
-    def reopen_task(
-        content,
-        task_lines,
-        journal_file
-    ):
-        if not task_lines:
-            print("There are no tasks to reopen.")
-            return
-
-        selected_task = select_task(
-            task_lines,
-            "Enter the number of the task to reopen: "
-        )
-
-        if selected_task is None:
-            return
-
-        if selected_task.lower().startswith("- [x]"):
-            reopened_task = selected_task.replace(
-                "- [x]",
-                "- [ ]",
-                1
-            )
-
-        elif selected_task.startswith("- [-]"):
-            reopened_task = selected_task.replace(
-                "- [-]",
-                "- [ ]",
-                1
-            )
-
-        else:
-            print("That task is already open.")
-            pause()
-            return
-
-        replace_task(
-            content,
-            selected_task,
-            reopened_task,
-            journal_file
-        )
-
-        print(f"Reopened: {reopened_task}")
-        pause()
 
 def cancel_task(content, task_lines, journal_file):
     if not task_lines:
