@@ -630,6 +630,79 @@ def fill_note_section(
             value=note_line,
         ).pack(anchor="w", pady=2)
 
+def delete_note_gui(
+    root,
+    journal_file,
+    note_frame,
+    selected_note_var,
+):
+    selected_note = selected_note_var.get()
+
+    if not selected_note:
+        return
+
+    confirmed = messagebox.askyesno(
+        "Delete note",
+        f"Delete this note?\n\n{selected_note}",
+        parent=root,
+    )
+
+    if not confirmed:
+        return
+
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    new_content = content.replace(
+        selected_note + "\n",
+        "",
+        1,
+    )
+
+    if new_content == content:
+        new_content = content.replace(
+            selected_note,
+            "",
+            1,
+        )
+
+    write_journal(
+        journal_file,
+        new_content,
+    )
+
+    updated_content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    updated_positions = get_section_positions(
+        updated_content
+    )
+
+    if updated_positions is None:
+        raise ValueError("Invalid journal structure.")
+
+    (
+        updated_tasks_start,
+        updated_notes_start,
+        updated_events_start,
+    ) = updated_positions
+
+    updated_notes = get_section_lines(
+        updated_content,
+        updated_notes_start,
+        updated_events_start,
+    )
+
+    selected_note_var.set("")
+
+    fill_note_section(
+        note_frame,
+        updated_notes,
+        selected_note_var,
+    )
+
 def main():
     root = tk.Tk()
     root.title(f"Bullet Journal v{__version__}")
@@ -787,6 +860,17 @@ def main():
         main_frame,
         text="Edit Note",
         command=lambda: edit_note_gui(
+            root,
+            journal_file,
+            note_frame,
+            selected_note_var,
+        ),
+    ).pack(anchor="w", pady=(0, 20))
+
+    ttk.Button(
+        main_frame,
+        text="Delete Note",
+        command=lambda: delete_note_gui(
             root,
             journal_file,
             note_frame,
