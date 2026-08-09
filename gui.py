@@ -88,8 +88,7 @@ def create_section(parent, title):
         padding=10,
     )
     frame.pack(
-        fill="both",
-        expand=True,
+        fill="x",
         pady=(0, 10),
     )
 
@@ -703,10 +702,63 @@ def delete_note_gui(
         selected_note_var,
     )
 
+def add_event_gui(
+    root,
+    journal_file,
+    event_frame,
+):
+    event_text = simpledialog.askstring(
+        "Add event",
+        "Event:",
+        parent=root,
+    )
+
+    if not event_text:
+        return
+
+    content = journal_file.read_text(encoding="utf-8")
+
+    new_content = (
+        content.rstrip()
+        + f"\n- {event_text}\n"
+    )
+
+    write_journal(
+        journal_file,
+        new_content,
+    )
+
+    updated_content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    updated_positions = get_section_positions(
+        updated_content
+    )
+
+    if updated_positions is None:
+        raise ValueError("Invalid journal structure.")
+
+    (
+        updated_tasks_start,
+        updated_notes_start,
+        updated_events_start,
+    ) = updated_positions
+
+    updated_events = get_section_lines(
+        updated_content,
+        updated_events_start,
+    )
+
+    fill_section(
+        event_frame,
+        updated_events,
+    )
+
 def main():
     root = tk.Tk()
     root.title(f"Bullet Journal v{__version__}")
-    root.geometry("900x700")
+    root.geometry("900x850")
 
     main_frame = ttk.Frame(root, padding=20)
     main_frame.pack(fill="both", expand=True)
@@ -845,8 +897,14 @@ def main():
         selected_note_var,
     )
 
+    note_button_frame = ttk.Frame(main_frame)
+    note_button_frame.pack(
+        anchor="w",
+        pady=(0, 20),
+    )
+
     ttk.Button(
-        main_frame,
+        note_button_frame,
         text="Add Note",
         command=lambda: add_note_gui(
             root,
@@ -854,10 +912,10 @@ def main():
             note_frame,
             selected_note_var,
         ),
-    ).pack(anchor="w", pady=(0, 8))
+    ).pack(side="left", padx=(0, 8))
 
     ttk.Button(
-        main_frame,
+        note_button_frame,
         text="Edit Note",
         command=lambda: edit_note_gui(
             root,
@@ -865,10 +923,10 @@ def main():
             note_frame,
             selected_note_var,
         ),
-    ).pack(anchor="w", pady=(0, 20))
+    ).pack(side="left", padx=(0, 8))
 
     ttk.Button(
-        main_frame,
+        note_button_frame,
         text="Delete Note",
         command=lambda: delete_note_gui(
             root,
@@ -876,7 +934,7 @@ def main():
             note_frame,
             selected_note_var,
         ),
-    ).pack(anchor="w", pady=(0, 20))
+    ).pack(side="left")
 
     event_frame = create_section(
         main_frame,
@@ -887,6 +945,16 @@ def main():
         event_frame,
         event_lines,
     )
+
+    ttk.Button(
+        main_frame,
+        text="Add Event",
+        command=lambda: add_event_gui(
+            root,
+            journal_file,
+            event_frame,
+        ),
+    ).pack(anchor="w", pady=(0, 20))
 
     root.mainloop()
 
