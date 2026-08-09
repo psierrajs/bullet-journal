@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 from journal_parser import (
@@ -381,6 +381,100 @@ def delete_task_gui(
         selected_task_var,
     )
 
+def migrate_task_gui(
+    root,
+    journal_file,
+    task_frame,
+    selected_task_var,
+):
+    selected_task = selected_task_var.get()
+
+    if not selected_task:
+        return
+
+    if not selected_task.startswith("- [ ]"):
+        messagebox.showinfo(
+            "Migrate task",
+            "Only open tasks can be migrated.",
+            parent=root,
+        )
+        return
+
+    confirmed = messagebox.askyesno(
+        "Migrate task",
+        f"Migrate this task to tomorrow?\n\n{selected_task}",
+        parent=root,
+    )
+
+    if not confirmed:
+        return
+
+    today = date.today()
+    tomorrow = today + timedelta(days=1)
+
+    journal_folder = journal_file.parent
+    tomorrow_file = (
+        journal_folder
+        / f"{tomorrow.isoformat()}.md"
+    )
+
+    if not tomorrow_file.exists():
+        create_daily_journal(
+            tomorrow_file,
+            tomorrow,
+        )
+
+    tomorrow_content = tomorrow_file.read_text(
+        encoding="utf-8"
+    )
+
+    tomorrow_positions = get_section_positions(
+        tomorrow_content
+    )
+
+    if tomorrow_positions is None:
+        raise ValueError(
+            "Invalid destination journal structure."
+        )
+
+    (
+        tomorrow_tasks_start,
+        tomorrow_notes_start,
+        tomorrow_events_start,
+    ) = tomorrow_positions
+
+    task_text = selected_task[6:]
+
+    insert_before_section(
+        tomorrow_content,
+        tomorrow_notes_start,
+        f"- [ ] {task_text}",
+        tomorrow_file,
+    )
+
+    current_content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    migrated_task = selected_task.replace(
+        "- [ ]",
+        "- [>]",
+        1,
+    )
+
+    replace_task(
+        current_content,
+        selected_task,
+        migrated_task,
+        journal_file,
+    )
+
+    refresh_tasks(
+        journal_file,
+        task_frame,
+        selected_task_var,
+    )
+
 def main():
     root = tk.Tk()
     root.title(f"Bullet Journal v{__version__}")
@@ -483,6 +577,17 @@ def main():
         button_frame,
         text="Delete Task",
         command=lambda: delete_task_gui(
+            root,
+            journal_file,
+            task_frame,
+            selected_task_var,
+        ),
+    ).pack(side="left", padx=(10, 0))
+
+    ttk.Button(
+        button_frame,
+        text="Migrate Task",
+        command=lambda: migrate_task_gui(
             root,
             journal_file,
             task_frame,
