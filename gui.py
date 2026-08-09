@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import simpledialog, ttk
+from tkinter import messagebox, simpledialog, ttk
 
 from datetime import date
 from pathlib import Path
@@ -13,6 +13,7 @@ from journal_storage import (
     create_daily_journal,
     insert_before_section,
     replace_task,
+    write_journal,
 )
 from version import __version__
 
@@ -332,6 +333,54 @@ def edit_task_gui(
         selected_task_var,
     )
 
+def delete_task_gui(
+    root,
+    journal_file,
+    task_frame,
+    selected_task_var,
+):
+    selected_task = selected_task_var.get()
+
+    if not selected_task:
+        return
+
+    confirmed = messagebox.askyesno(
+        "Delete task",
+        f"Delete this task?\n\n{selected_task}",
+        parent=root,
+    )
+
+    if not confirmed:
+        return
+
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    new_content = content.replace(
+        selected_task + "\n",
+        "",
+        1,
+    )
+
+    if new_content == content:
+        new_content = content.replace(
+            selected_task,
+            "",
+            1,
+        )
+
+    write_journal(
+        journal_file,
+        new_content,
+    )
+
+    refresh_tasks(
+        journal_file,
+        task_frame,
+        selected_task_var,
+    )
+
 def main():
     root = tk.Tk()
     root.title(f"Bullet Journal v{__version__}")
@@ -423,6 +472,17 @@ def main():
         button_frame,
         text="Edit Task",
         command=lambda: edit_task_gui(
+            root,
+            journal_file,
+            task_frame,
+            selected_task_var,
+        ),
+    ).pack(side="left", padx=(10, 0))
+
+    ttk.Button(
+        button_frame,
+        text="Delete Task",
+        command=lambda: delete_task_gui(
             root,
             journal_file,
             task_frame,
