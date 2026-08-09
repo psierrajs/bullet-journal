@@ -479,6 +479,7 @@ def add_note_gui(
     root,
     journal_file,
     note_frame,
+    selected_note_var,
 ):
     note_text = simpledialog.askstring(
         "Add note",
@@ -527,10 +528,107 @@ def add_note_gui(
         updated_events_start,
     )
 
-    fill_section(
+    selected_note_var.set("")
+
+    fill_note_section(
         note_frame,
         updated_notes,
+        selected_note_var,
     )
+
+def edit_note_gui(
+    root,
+    journal_file,
+    note_frame,
+    selected_note_var,
+):
+    selected_note = selected_note_var.get()
+
+    if not selected_note:
+        return
+
+    current_text = selected_note.removeprefix("- ").strip()
+
+    new_text = simpledialog.askstring(
+        "Edit note",
+        "Note:",
+        initialvalue=current_text,
+        parent=root,
+    )
+
+    if not new_text:
+        return
+
+    edited_note = f"- {new_text}"
+
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    new_content = content.replace(
+        selected_note,
+        edited_note,
+        1,
+    )
+
+    write_journal(
+        journal_file,
+        new_content,
+    )
+
+    updated_content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    updated_positions = get_section_positions(
+        updated_content
+    )
+
+    if updated_positions is None:
+        raise ValueError("Invalid journal structure.")
+
+    (
+        updated_tasks_start,
+        updated_notes_start,
+        updated_events_start,
+    ) = updated_positions
+
+    updated_notes = get_section_lines(
+        updated_content,
+        updated_notes_start,
+        updated_events_start,
+    )
+
+    selected_note_var.set("")
+
+    fill_note_section(
+        note_frame,
+        updated_notes,
+        selected_note_var,
+    )
+
+def fill_note_section(
+    frame,
+    note_lines,
+    selected_note_var,
+):
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    if not note_lines:
+        ttk.Label(
+            frame,
+            text="No notes yet.",
+        ).pack(anchor="w")
+        return
+
+    for note_line in note_lines:
+        ttk.Radiobutton(
+            frame,
+            text=note_line,
+            variable=selected_note_var,
+            value=note_line,
+        ).pack(anchor="w", pady=2)
 
 def main():
     root = tk.Tk()
@@ -661,25 +759,40 @@ def main():
         ),
     ).pack(side="left")
 
+    selected_note_var = tk.StringVar()
+    
     note_frame = create_section(
         main_frame,
         "Notes",
     )
 
-    fill_section(
+    fill_note_section(
         note_frame,
         note_lines,
+        selected_note_var,
     )
 
     ttk.Button(
-    main_frame,
-    text="Add Note",
-    command=lambda: add_note_gui(
-        root,
-        journal_file,
-        note_frame,
-    ),
-).pack(anchor="w", pady=(0, 20))
+        main_frame,
+        text="Add Note",
+        command=lambda: add_note_gui(
+            root,
+            journal_file,
+            note_frame,
+            selected_note_var,
+        ),
+    ).pack(anchor="w", pady=(0, 8))
+
+    ttk.Button(
+        main_frame,
+        text="Edit Note",
+        command=lambda: edit_note_gui(
+            root,
+            journal_file,
+            note_frame,
+            selected_note_var,
+        ),
+    ).pack(anchor="w", pady=(0, 20))
 
     event_frame = create_section(
         main_frame,
