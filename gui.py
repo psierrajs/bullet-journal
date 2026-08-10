@@ -18,30 +18,46 @@ from journal_storage import (
 from version import __version__
 
 
-def load_today():
-    today = date.today()
-
+def load_journal(journal_date):
     journal_folder = Path("journal")
     journal_folder.mkdir(exist_ok=True)
 
-    journal_file = journal_folder / f"{today.isoformat()}.md"
+    journal_file = (
+        journal_folder
+        / f"{journal_date.isoformat()}.md"
+    )
 
     if not journal_file.exists():
-        create_daily_journal(journal_file, today)
+        create_daily_journal(
+            journal_file,
+            journal_date,
+        )
 
-    content = journal_file.read_text(encoding="utf-8")
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
 
-    section_positions = get_section_positions(content)
+    section_positions = get_section_positions(
+        content
+    )
 
     if section_positions is None:
-        raise ValueError("Invalid journal structure.")
+        raise ValueError(
+            "Invalid journal structure."
+        )
 
-    tasks_start, notes_start, events_start = section_positions
+    (
+        tasks_start,
+        notes_start,
+        events_start,
+    ) = section_positions
 
     task_lines = get_task_lines(content)
 
     if task_lines is None:
-        raise ValueError("Invalid journal structure.")
+        raise ValueError(
+            "Invalid journal structure."
+        )
 
     note_lines = get_section_lines(
         content,
@@ -55,7 +71,7 @@ def load_today():
     )
 
     return (
-        today,
+        journal_date,
         journal_file,
         task_lines,
         note_lines,
@@ -883,7 +899,15 @@ def delete_event_gui(
         selected_event_var,
     )
 
-def main():
+def open_journal_date(root, journal_date):
+    root.destroy()
+    main(journal_date)
+
+def main(journal_date=None):
+
+    if journal_date is None:
+        journal_date = date.today()
+
     root = tk.Tk()
     root.title(f"Bullet Journal v{__version__}")
     root.geometry("900x850")
@@ -964,12 +988,12 @@ def main():
     )
 
     (
-        today,
+        current_date,
         journal_file,
         task_lines,
         note_lines,
         event_lines,
-    ) = load_today()
+    ) = load_journal(journal_date)
 
     ttk.Label(
         main_frame,
@@ -978,9 +1002,44 @@ def main():
     ).pack(anchor="w")
 
     ttk.Label(
-        main_frame,
-        text=today.strftime("%A, %d %B %Y"),
+            main_frame,
+            text=current_date.strftime(
+        "%A, %d %B %Y"
+    ),
     ).pack(anchor="w", pady=(0, 20))
+
+    navigation_frame = ttk.Frame(main_frame)
+    navigation_frame.pack(
+        anchor="w",
+        pady=(0, 20),
+    )
+
+    ttk.Button(
+        navigation_frame,
+        text="← Previous",
+        command=lambda: open_journal_date(
+            root,
+            current_date - timedelta(days=1),
+        ),
+    ).pack(side="left", padx=(0, 8))
+
+    ttk.Button(
+        navigation_frame,
+        text="Today",
+        command=lambda: open_journal_date(
+            root,
+            date.today(),
+        ),
+    ).pack(side="left", padx=(0, 8))
+
+    ttk.Button(
+        navigation_frame,
+        text="Next →",
+        command=lambda: open_journal_date(
+            root,
+            current_date + timedelta(days=1),
+        ),
+    ).pack(side="left")
 
     selected_task_var = tk.StringVar()
 
