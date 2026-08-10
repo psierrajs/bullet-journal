@@ -8,6 +8,8 @@ Journal data is stored as human-readable Markdown files on the local filesystem.
 
 ### Graphical interface
 
+![Bullet Journal GUI](docs/images/gui-screenshot.png)
+
 The Tkinter GUI provides:
 
 * Create and browse daily journals
