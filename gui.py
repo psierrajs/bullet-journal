@@ -582,31 +582,6 @@ def edit_note_gui(
         new_content,
     )
 
-    updated_content = journal_file.read_text(
-        encoding="utf-8"
-    )
-
-    updated_positions = get_section_positions(
-        updated_content
-    )
-
-    if updated_positions is None:
-        raise ValueError("Invalid journal structure.")
-
-    (
-        updated_tasks_start,
-        updated_notes_start,
-        updated_events_start,
-    ) = updated_positions
-
-    updated_notes = get_section_lines(
-        updated_content,
-        updated_notes_start,
-        updated_events_start,
-    )
-
-    selected_note_var.set("")
-
     refresh_notes(
         journal_file,
         note_frame,
@@ -735,31 +710,6 @@ def delete_note_gui(
         journal_file,
         new_content,
     )
-
-    updated_content = journal_file.read_text(
-        encoding="utf-8"
-    )
-
-    updated_positions = get_section_positions(
-        updated_content
-    )
-
-    if updated_positions is None:
-        raise ValueError("Invalid journal structure.")
-
-    (
-        updated_tasks_start,
-        updated_notes_start,
-        updated_events_start,
-    ) = updated_positions
-
-    updated_notes = get_section_lines(
-        updated_content,
-        updated_notes_start,
-        updated_events_start,
-    )
-
-    selected_note_var.set("")
 
     refresh_notes(
         journal_file,
