@@ -1274,6 +1274,161 @@ def search_journals_gui(
 
     search_entry.focus_set()
 
+def get_pending_tasks(
+    journal_folder,
+):
+    pending_tasks = []
+
+    journal_files = sorted(
+        journal_folder.glob("*.md")
+    )
+
+    for journal_file in journal_files:
+        content = journal_file.read_text(
+            encoding="utf-8"
+        )
+
+        task_lines = get_task_lines(content)
+
+        if task_lines is None:
+            continue
+
+        for task_line in task_lines:
+            if task_line.startswith("- [ ]"):
+                pending_tasks.append(
+                    (
+                        journal_file.stem,
+                        task_line,
+                    )
+                )
+
+    return pending_tasks
+
+def pending_tasks_gui(
+    root,
+    journal_folder,
+    load_date_callback,
+):
+    pending_window = tk.Toplevel(root)
+    pending_window.title("Pending Tasks")
+    pending_window.geometry("700x450")
+    pending_window.transient(root)
+
+    main_frame = ttk.Frame(
+        pending_window,
+        padding=15,
+    )
+    main_frame.pack(
+        fill="both",
+        expand=True,
+    )
+
+    ttk.Label(
+        main_frame,
+        text="Pending Tasks",
+        font=("Helvetica", 18, "bold"),
+    ).pack(
+        anchor="w",
+        pady=(0, 10),
+    )
+
+    pending_tasks = get_pending_tasks(
+        journal_folder
+    )
+
+    columns = (
+        "date",
+        "task",
+    )
+
+    task_tree = ttk.Treeview(
+        main_frame,
+        columns=columns,
+        show="headings",
+        selectmode="browse",
+    )
+
+    task_tree.heading(
+        "date",
+        text="Date",
+    )
+
+    task_tree.heading(
+        "task",
+        text="Task",
+    )
+
+    task_tree.column(
+        "date",
+        width=120,
+        stretch=False,
+    )
+
+    task_tree.column(
+        "task",
+        width=500,
+    )
+
+    scrollbar = ttk.Scrollbar(
+        main_frame,
+        orient="vertical",
+        command=task_tree.yview,
+    )
+
+    task_tree.configure(
+        yscrollcommand=scrollbar.set
+    )
+
+    task_tree.pack(
+        side="left",
+        fill="both",
+        expand=True,
+    )
+
+    scrollbar.pack(
+        side="right",
+        fill="y",
+    )
+
+    for (
+        journal_date,
+        task_line,
+    ) in pending_tasks:
+        task_tree.insert(
+            "",
+            "end",
+            values=(
+                journal_date,
+                task_line,
+            ),
+        )
+
+    def open_selected_task():
+        selected = task_tree.selection()
+
+        if not selected:
+            return
+
+        values = task_tree.item(
+            selected[0],
+            "values",
+        )
+
+        journal_date = date.fromisoformat(
+            values[0]
+        )
+
+        load_date_callback(
+            journal_date
+        )
+
+        pending_window.destroy()
+
+    task_tree.bind(
+        "<Double-1>",
+        lambda event: open_selected_task(),
+    )
+
 def main(journal_date=None):
     if journal_date is None:
         journal_date = date.today()
@@ -1460,6 +1615,19 @@ def main(journal_date=None):
         navigation_frame,
         text="Search",
         command=lambda: search_journals_gui(
+            root,
+            Path("journal"),
+            load_date,
+        ),
+    ).pack(
+        side="left",
+        padx=(8, 0),
+    )
+
+    ttk.Button(
+        navigation_frame,
+        text="Pending Tasks",
+        command=lambda: pending_tasks_gui(
             root,
             Path("journal"),
             load_date,
