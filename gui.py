@@ -62,6 +62,10 @@ from journal_queries import (
     search_journal_files,
 )
 
+from gui_backup_actions import (
+    restore_backup_gui,
+)
+
 def load_journal(journal_date):
     journal_folder = Path("journal")
     journal_folder.mkdir(exist_ok=True)
@@ -1197,6 +1201,33 @@ def main(journal_date=None):
             selected_event_var,
         ),
     ).pack(side="left")
+
+    # -------------------------------------------------
+    # Journal actions
+    # -------------------------------------------------
+
+    journal_actions_frame = ttk.LabelFrame(
+        main_frame,
+        text="Journal Actions",
+        padding=10,
+    )
+
+    journal_actions_frame.pack(
+        fill="x",
+        pady=(0, 20),
+    )
+
+    ttk.Button(
+        journal_actions_frame,
+        text="Restore Backup",
+        command=lambda: restore_backup_gui(
+            root,
+            state["journal_file"],
+            load_date,
+        ),
+    ).pack(
+        anchor="w",
+    )
 
     # -------------------------------------------------
     # Date loading
