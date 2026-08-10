@@ -1245,13 +1245,25 @@ def main(journal_date=None):
     # -------------------------------------------------
 
     def load_date(new_date):
-        (
-            loaded_date,
-            loaded_file,
-            loaded_tasks,
-            loaded_notes,
-            loaded_events,
-        ) = load_journal(new_date)
+        try:
+            (
+                loaded_date,
+                loaded_file,
+                loaded_tasks,
+                loaded_notes,
+                loaded_events,
+            ) = load_journal(new_date)
+
+        except (ValueError, OSError) as error:
+            messagebox.showerror(
+                "Unable to open journal",
+                (
+                    "The journal could not be opened.\n\n"
+                    f"{error}"
+                ),
+                parent=root,
+            )
+            return
 
         state["date"] = loaded_date
         state["journal_file"] = loaded_file
@@ -1297,7 +1309,6 @@ def main(journal_date=None):
         )
 
         canvas.yview_moveto(0)
-
 
 
     def go_to_date():
