@@ -56,6 +56,12 @@ from gui_event_actions import (
     refresh_events,
 )
 
+from journal_queries import (
+    get_journal_dates,
+    get_pending_tasks,
+    search_journal_files,
+)
+
 def load_journal(journal_date):
     journal_folder = Path("journal")
     journal_folder.mkdir(exist_ok=True)
@@ -530,6 +536,139 @@ def pending_tasks_gui(
         lambda event: open_selected_task(),
     )
 
+def list_journals_gui(
+    root,
+    journal_folder,
+    load_date_callback,
+):
+    list_window = tk.Toplevel(root)
+    list_window.title("Available Journals")
+    list_window.geometry("500x450")
+    list_window.transient(root)
+
+    main_frame = ttk.Frame(
+        list_window,
+        padding=15,
+    )
+    main_frame.pack(
+        fill="both",
+        expand=True,
+    )
+
+    ttk.Label(
+        main_frame,
+        text="Available Journals",
+        font=("Helvetica", 18, "bold"),
+    ).pack(
+        anchor="w",
+        pady=(0, 10),
+    )
+
+    journal_dates = get_journal_dates(
+        journal_folder
+    )
+
+    columns = (
+        "date",
+        "formatted",
+    )
+
+    journal_tree = ttk.Treeview(
+        main_frame,
+        columns=columns,
+        show="headings",
+        selectmode="browse",
+    )
+
+    journal_tree.heading(
+        "date",
+        text="Date",
+    )
+
+    journal_tree.heading(
+        "formatted",
+        text="Journal",
+    )
+
+    journal_tree.column(
+        "date",
+        width=120,
+        stretch=False,
+    )
+
+    journal_tree.column(
+        "formatted",
+        width=300,
+    )
+
+    scrollbar = ttk.Scrollbar(
+        main_frame,
+        orient="vertical",
+        command=journal_tree.yview,
+    )
+
+    journal_tree.configure(
+        yscrollcommand=scrollbar.set
+    )
+
+    journal_tree.pack(
+        side="left",
+        fill="both",
+        expand=True,
+    )
+
+    scrollbar.pack(
+        side="right",
+        fill="y",
+    )
+
+    for journal_date in journal_dates:
+        journal_tree.insert(
+            "",
+            "end",
+            values=(
+                journal_date.isoformat(),
+                journal_date.strftime(
+                    "%A, %d %B %Y"
+                ),
+            ),
+        )
+
+    def open_selected_journal():
+        selected = journal_tree.selection()
+
+        if not selected:
+            return
+
+        values = journal_tree.item(
+            selected[0],
+            "values",
+        )
+
+        journal_date = date.fromisoformat(
+            values[0]
+        )
+
+        load_date_callback(
+            journal_date
+        )
+
+        list_window.destroy()
+
+    journal_tree.bind(
+        "<Double-1>",
+        lambda event: open_selected_journal(),
+    )
+
+    ttk.Button(
+        main_frame,
+        text="Open Selected",
+        command=open_selected_journal,
+    ).pack(
+        anchor="w",
+        pady=(10, 0),
+    )
+
 def main(journal_date=None):
     if journal_date is None:
         journal_date = date.today()
@@ -729,6 +868,19 @@ def main(journal_date=None):
         navigation_frame,
         text="Pending Tasks",
         command=lambda: pending_tasks_gui(
+            root,
+            Path("journal"),
+            load_date,
+        ),
+    ).pack(
+        side="left",
+        padx=(8, 0),
+    )
+
+    ttk.Button(
+        navigation_frame,
+        text="Journals",
+        command=lambda: list_journals_gui(
             root,
             Path("journal"),
             load_date,

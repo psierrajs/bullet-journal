@@ -1,5 +1,25 @@
 from journal_parser import get_task_lines
 
+from datetime import date
+
+def get_journal_dates(journal_folder):
+    journal_dates = []
+
+    for journal_file in sorted(
+        journal_folder.glob("*.md")
+    ):
+        try:
+            journal_date = date.fromisoformat(
+                journal_file.stem
+            )
+        except ValueError:
+            continue
+
+        journal_dates.append(
+            journal_date
+        )
+
+    return journal_dates
 
 def search_journal_files(
     journal_folder,

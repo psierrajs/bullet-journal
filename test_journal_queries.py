@@ -1,8 +1,10 @@
 import tempfile
 import unittest
+from datetime import date
 from pathlib import Path
 
 from journal_queries import (
+    get_journal_dates,
     get_pending_tasks,
     search_journal_files,
 )
@@ -224,6 +226,43 @@ class TestJournalQueries(unittest.TestCase):
         self.assertEqual(
             pending_tasks,
             [],
+        )
+    def test_get_journal_dates_returns_valid_dates_only(self):
+        self.create_journal(
+            "2026-08-01.md",
+            (
+                "# Friday, 01 August 2026\n\n"
+                "## Tasks\n\n"
+                "## Notes\n\n"
+                "## Events\n"
+            ),
+        )
+
+        self.create_journal(
+            "2026-08-03.md",
+            (
+                "# Sunday, 03 August 2026\n\n"
+                "## Tasks\n\n"
+                "## Notes\n\n"
+                "## Events\n"
+            ),
+        )
+
+        self.create_journal(
+            "not-a-date.md",
+            "Ignore this file.",
+        )
+
+        journal_dates = get_journal_dates(
+            self.journal_folder
+        )
+
+        self.assertEqual(
+            journal_dates,
+            [
+                date(2026, 8, 1),
+                date(2026, 8, 3),
+            ],
         )
 
 
