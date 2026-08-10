@@ -852,8 +852,80 @@ def main():
     root.title(f"Bullet Journal v{__version__}")
     root.geometry("900x850")
 
-    main_frame = ttk.Frame(root, padding=20)
-    main_frame.pack(fill="both", expand=True)
+    container = ttk.Frame(root)
+    container.pack(
+        fill="both",
+        expand=True,
+    )
+
+    canvas = tk.Canvas(
+        container,
+        highlightthickness=0,
+    )
+
+    scrollbar = ttk.Scrollbar(
+        container,
+        orient="vertical",
+        command=canvas.yview,
+    )
+
+    canvas.configure(
+        yscrollcommand=scrollbar.set,
+    )
+
+    scrollbar.pack(
+        side="right",
+        fill="y",
+    )
+
+    canvas.pack(
+        side="left",
+        fill="both",
+        expand=True,
+    )
+
+    main_frame = ttk.Frame(
+        canvas,
+        padding=20,
+    )
+
+    canvas_window = canvas.create_window(
+        (0, 0),
+        window=main_frame,
+        anchor="nw",
+    )
+
+    def update_scroll_region(event):
+        canvas.configure(
+            scrollregion=canvas.bbox("all")
+        )
+
+    def resize_content(event):
+        canvas.itemconfigure(
+            canvas_window,
+            width=event.width,
+        )
+
+    main_frame.bind(
+        "<Configure>",
+        update_scroll_region,
+    )
+
+    canvas.bind(
+        "<Configure>",
+        resize_content,
+    )
+
+    def on_mousewheel(event):
+        if event.delta > 0:
+            canvas.yview_scroll(-1, "units")
+        elif event.delta < 0:
+            canvas.yview_scroll(1, "units")
+
+    canvas.bind_all(
+        "<MouseWheel>",
+        on_mousewheel,
+    )
 
     (
         today,
@@ -1085,4 +1157,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
 
