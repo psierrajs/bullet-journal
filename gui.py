@@ -511,56 +511,70 @@ def migrate_task_gui(
         )
         return
 
+    source_date = date.fromisoformat(
+        journal_file.stem
+    )
+
+    destination_date = (
+        source_date + timedelta(days=1)
+    )
+
     confirmed = messagebox.askyesno(
         "Migrate task",
-        f"Migrate this task to tomorrow?\n\n{selected_task}",
+        (
+            "Migrate this task to "
+            f"{destination_date.isoformat()}?"
+            f"\n\n{selected_task}"
+        ),
         parent=root,
     )
 
     if not confirmed:
         return
 
-    today = date.today()
-    tomorrow = today + timedelta(days=1)
-
     journal_folder = journal_file.parent
-    tomorrow_file = (
+
+    destination_file = (
         journal_folder
-        / f"{tomorrow.isoformat()}.md"
+        / f"{destination_date.isoformat()}.md"
     )
 
-    if not tomorrow_file.exists():
+    if not destination_file.exists():
         create_daily_journal(
-            tomorrow_file,
-            tomorrow,
+            destination_file,
+            destination_date,
         )
 
-    tomorrow_content = tomorrow_file.read_text(
-        encoding="utf-8"
+    destination_content = (
+        destination_file.read_text(
+            encoding="utf-8"
+        )
     )
 
-    tomorrow_positions = get_section_positions(
-        tomorrow_content
+    destination_positions = (
+        get_section_positions(
+            destination_content
+        )
     )
 
-    if tomorrow_positions is None:
+    if destination_positions is None:
         raise ValueError(
             "Invalid destination journal structure."
         )
 
     (
-        tomorrow_tasks_start,
-        tomorrow_notes_start,
-        tomorrow_events_start,
-    ) = tomorrow_positions
+        destination_tasks_start,
+        destination_notes_start,
+        destination_events_start,
+    ) = destination_positions
 
     task_text = selected_task[6:]
 
     insert_before_section(
-        tomorrow_content,
-        tomorrow_notes_start,
+        destination_content,
+        destination_notes_start,
         f"- [ ] {task_text}",
-        tomorrow_file,
+        destination_file,
     )
 
     current_content = journal_file.read_text(
@@ -1011,13 +1025,25 @@ def refresh_journal_status(
         )
 
 def main(journal_date=None):
-
     if journal_date is None:
         journal_date = date.today()
 
     root = tk.Tk()
     root.title(f"Bullet Journal v{__version__}")
     root.geometry("900x850")
+
+    (
+        current_date,
+        journal_file,
+        task_lines,
+        note_lines,
+        event_lines,
+    ) = load_journal(journal_date)
+
+    state = {
+        "date": current_date,
+        "journal_file": journal_file,
+    }
 
     container = ttk.Frame(root)
     container.pack(
@@ -1094,13 +1120,9 @@ def main(journal_date=None):
         on_mousewheel,
     )
 
-    (
-        current_date,
-        journal_file,
-        task_lines,
-        note_lines,
-        event_lines,
-    ) = load_journal(journal_date)
+    # -------------------------------------------------
+    # Header
+    # -------------------------------------------------
 
     ttk.Label(
         main_frame,
@@ -1108,12 +1130,19 @@ def main(journal_date=None):
         font=("Helvetica", 24, "bold"),
     ).pack(anchor="w")
 
+    date_var = tk.StringVar(
+        value=current_date.strftime(
+            "%A, %d %B %Y"
+        )
+    )
+
     ttk.Label(
-            main_frame,
-            text=current_date.strftime(
-        "%A, %d %B %Y"
-    ),
-    ).pack(anchor="w", pady=(0, 20))
+        main_frame,
+        textvariable=date_var,
+    ).pack(
+        anchor="w",
+        pady=(0, 8),
+    )
 
     journal_status_var = tk.StringVar(
         value=get_journal_status(journal_file)
@@ -1128,6 +1157,10 @@ def main(journal_date=None):
         pady=(0, 10),
     )
 
+    # -------------------------------------------------
+    # Navigation
+    # -------------------------------------------------
+
     navigation_frame = ttk.Frame(main_frame)
     navigation_frame.pack(
         anchor="w",
@@ -1137,37 +1170,45 @@ def main(journal_date=None):
     ttk.Button(
         navigation_frame,
         text="← Previous",
-        command=lambda: open_journal_date(
-            root,
-            current_date - timedelta(days=1),
+        command=lambda: load_date(
+            state["date"] - timedelta(days=1)
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         navigation_frame,
         text="Today",
-        command=lambda: open_journal_date(
-            root,
-            date.today(),
+        command=lambda: load_date(
+            date.today()
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         navigation_frame,
         text="Next →",
-        command=lambda: open_journal_date(
-            root,
-            current_date + timedelta(days=1),
+        command=lambda: load_date(
+            state["date"] + timedelta(days=1)
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         navigation_frame,
         text="Go to Date",
-        command=lambda: go_to_date_gui(
-            root
-        ),
+        command=lambda: go_to_date(),
     ).pack(side="left")
+
+    # -------------------------------------------------
+    # Tasks
+    # -------------------------------------------------
 
     selected_task_var = tk.StringVar()
 
@@ -1176,7 +1217,9 @@ def main(journal_date=None):
         "Tasks",
     )
 
-    task_frame.journal_status_var = journal_status_var
+    task_frame.journal_status_var = (
+        journal_status_var
+    )
 
     fill_task_section(
         task_frame,
@@ -1222,19 +1265,26 @@ def main(journal_date=None):
         fill="x",
         pady=(8, 0),
     )
+
     button_frame = ttk.Frame(main_frame)
     button_frame.pack(
         fill="x",
         pady=(0, 20),
     )
 
-    primary_buttons = ttk.Frame(button_frame)
+    primary_buttons = ttk.Frame(
+        button_frame
+    )
+
     primary_buttons.pack(
         anchor="w",
         pady=(0, 8),
     )
 
-    status_buttons = ttk.Frame(button_frame)
+    status_buttons = ttk.Frame(
+        button_frame
+    )
+
     status_buttons.pack(anchor="w")
 
     ttk.Button(
@@ -1242,29 +1292,35 @@ def main(journal_date=None):
         text="Add Task",
         command=lambda: add_task_gui(
             root,
-            journal_file,
+            state["journal_file"],
             task_frame,
             selected_task_var,
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         primary_buttons,
         text="Edit Task",
         command=lambda: edit_task_gui(
             root,
-            journal_file,
+            state["journal_file"],
             task_frame,
             selected_task_var,
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         primary_buttons,
         text="Delete Task",
         command=lambda: delete_task_gui(
             root,
-            journal_file,
+            state["journal_file"],
             task_frame,
             selected_task_var,
         ),
@@ -1274,42 +1330,55 @@ def main(journal_date=None):
         status_buttons,
         text="Complete",
         command=lambda: complete_task_gui(
-            journal_file,
+            state["journal_file"],
             task_frame,
             selected_task_var,
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         status_buttons,
         text="Reopen",
         command=lambda: reopen_task_gui(
-            journal_file,
+            state["journal_file"],
             task_frame,
             selected_task_var,
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         status_buttons,
         text="Cancel",
         command=lambda: cancel_task_gui(
-            journal_file,
+            state["journal_file"],
             task_frame,
             selected_task_var,
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         status_buttons,
         text="Migrate",
         command=lambda: migrate_task_gui(
             root,
-            journal_file,
+            state["journal_file"],
             task_frame,
             selected_task_var,
         ),
     ).pack(side="left")
+
+    # -------------------------------------------------
+    # Notes
+    # -------------------------------------------------
 
     selected_note_var = tk.StringVar()
 
@@ -1318,7 +1387,9 @@ def main(journal_date=None):
         "Notes",
     )
 
-    note_frame.journal_status_var = journal_status_var
+    note_frame.journal_status_var = (
+        journal_status_var
+    )
 
     fill_note_section(
         note_frame,
@@ -1326,7 +1397,10 @@ def main(journal_date=None):
         selected_note_var,
     )
 
-    note_button_frame = ttk.Frame(main_frame)
+    note_button_frame = ttk.Frame(
+        main_frame
+    )
+
     note_button_frame.pack(
         anchor="w",
         pady=(0, 20),
@@ -1337,33 +1411,43 @@ def main(journal_date=None):
         text="Add Note",
         command=lambda: add_note_gui(
             root,
-            journal_file,
+            state["journal_file"],
             note_frame,
             selected_note_var,
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         note_button_frame,
         text="Edit Note",
         command=lambda: edit_note_gui(
             root,
-            journal_file,
+            state["journal_file"],
             note_frame,
             selected_note_var,
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         note_button_frame,
         text="Delete Note",
         command=lambda: delete_note_gui(
             root,
-            journal_file,
+            state["journal_file"],
             note_frame,
             selected_note_var,
         ),
     ).pack(side="left")
+
+    # -------------------------------------------------
+    # Events
+    # -------------------------------------------------
 
     selected_event_var = tk.StringVar()
 
@@ -1372,7 +1456,9 @@ def main(journal_date=None):
         "Events",
     )
 
-    event_frame.journal_status_var = journal_status_var
+    event_frame.journal_status_var = (
+        journal_status_var
+    )
 
     fill_event_section(
         event_frame,
@@ -1380,7 +1466,10 @@ def main(journal_date=None):
         selected_event_var,
     )
 
-    event_button_frame = ttk.Frame(main_frame)
+    event_button_frame = ttk.Frame(
+        main_frame
+    )
+
     event_button_frame.pack(
         anchor="w",
         pady=(0, 20),
@@ -1391,33 +1480,122 @@ def main(journal_date=None):
         text="Add Event",
         command=lambda: add_event_gui(
             root,
-            journal_file,
+            state["journal_file"],
             event_frame,
             selected_event_var,
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         event_button_frame,
         text="Edit Event",
         command=lambda: edit_event_gui(
             root,
-            journal_file,
+            state["journal_file"],
             event_frame,
             selected_event_var,
         ),
-    ).pack(side="left", padx=(0, 8))
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
 
     ttk.Button(
         event_button_frame,
         text="Delete Event",
         command=lambda: delete_event_gui(
             root,
-            journal_file,
+            state["journal_file"],
             event_frame,
             selected_event_var,
         ),
     ).pack(side="left")
+
+    # -------------------------------------------------
+    # Date loading
+    # -------------------------------------------------
+
+    def load_date(new_date):
+        (
+            loaded_date,
+            loaded_file,
+            loaded_tasks,
+            loaded_notes,
+            loaded_events,
+        ) = load_journal(new_date)
+
+        state["date"] = loaded_date
+        state["journal_file"] = loaded_file
+
+        date_var.set(
+            loaded_date.strftime(
+                "%A, %d %B %Y"
+            )
+        )
+
+        journal_status_var.set(
+            get_journal_status(
+                loaded_file
+            )
+        )
+
+        selected_task_var.set("")
+        selected_note_var.set("")
+        selected_event_var.set("")
+
+        fill_task_section(
+            task_frame,
+            loaded_tasks,
+            selected_task_var,
+        )
+
+        fill_note_section(
+            note_frame,
+            loaded_notes,
+            selected_note_var,
+        )
+
+        fill_event_section(
+            event_frame,
+            loaded_events,
+            selected_event_var,
+        )
+
+        task_summary_var.set(
+            get_task_summary(
+                loaded_tasks
+            )
+        )
+
+        canvas.yview_moveto(0)
+
+    def go_to_date():
+        date_text = simpledialog.askstring(
+            "Go to date",
+            "Enter date (YYYY-MM-DD):",
+            parent=root,
+        )
+
+        if not date_text:
+            return
+
+        try:
+            target_date = date.fromisoformat(
+                date_text.strip()
+            )
+        except ValueError:
+            messagebox.showerror(
+                "Invalid date",
+                "Please enter the date as "
+                "YYYY-MM-DD.",
+                parent=root,
+            )
+            return
+
+        load_date(target_date)
 
     root.mainloop()
 
