@@ -208,7 +208,9 @@ def refresh_notes(
     positions = get_section_positions(content)
 
     if positions is None:
-        raise ValueError("Invalid journal structure.")
+        raise ValueError(
+            "Invalid journal structure."
+        )
 
     _, notes_start, events_start = positions
 
@@ -243,25 +245,33 @@ def add_task_gui(
         return
 
     if not journal_file.exists():
-      journal_date = date.fromisoformat(
-        journal_file.stem
-    )
+        journal_date = date.fromisoformat(
+            journal_file.stem
+        )
 
-    create_daily_journal(
-        journal_file,
-        journal_date,
-    )
+        create_daily_journal(
+            journal_file,
+            journal_date,
+        )
 
     content = journal_file.read_text(
         encoding="utf-8"
     )
 
-    section_positions = get_section_positions(content)
+    section_positions = get_section_positions(
+        content
+    )
 
     if section_positions is None:
-        raise ValueError("Invalid journal structure.")
+        raise ValueError(
+            "Invalid journal structure."
+        )
 
-    tasks_start, notes_start, events_start = section_positions
+    (
+        tasks_start,
+        notes_start,
+        events_start,
+    ) = section_positions
 
     insert_before_section(
         content,
@@ -276,6 +286,10 @@ def add_task_gui(
         selected_task_var,
     )
 
+    refresh_journal_status(
+        journal_file,
+        task_frame,
+    )
 
 def complete_task_gui(
     journal_file,
@@ -601,10 +615,14 @@ def add_note_gui(
         encoding="utf-8"
     )
 
-    section_positions = get_section_positions(content)
+    section_positions = get_section_positions(
+        content
+    )
 
     if section_positions is None:
-        raise ValueError("Invalid journal structure.")
+        raise ValueError(
+            "Invalid journal structure."
+        )
 
     _, _, events_start = section_positions
 
@@ -620,6 +638,12 @@ def add_note_gui(
         note_frame,
         selected_note_var,
     )
+
+    refresh_journal_status(
+        journal_file,
+        note_frame,
+    )
+
 def edit_note_gui(
     root,
     journal_file,
@@ -965,6 +989,27 @@ def go_to_date_gui(root):
         target_date,
     )
 
+def get_journal_status(journal_file):
+    if journal_file.exists():
+        return "Journal exists"
+
+    return "No journal yet — it will be created when you add content"
+
+def refresh_journal_status(
+    journal_file,
+    frame,
+):
+    status_var = getattr(
+        frame,
+        "journal_status_var",
+        None,
+    )
+
+    if status_var is not None:
+        status_var.set(
+            get_journal_status(journal_file)
+        )
+
 def main(journal_date=None):
 
     if journal_date is None:
@@ -1070,6 +1115,19 @@ def main(journal_date=None):
     ),
     ).pack(anchor="w", pady=(0, 20))
 
+    journal_status_var = tk.StringVar(
+        value=get_journal_status(journal_file)
+    )
+
+    ttk.Label(
+        main_frame,
+        textvariable=journal_status_var,
+        font=("Helvetica", 11, "italic"),
+    ).pack(
+        anchor="w",
+        pady=(0, 10),
+    )
+
     navigation_frame = ttk.Frame(main_frame)
     navigation_frame.pack(
         anchor="w",
@@ -1117,6 +1175,8 @@ def main(journal_date=None):
         main_frame,
         "Tasks",
     )
+
+    task_frame.journal_status_var = journal_status_var
 
     fill_task_section(
         task_frame,
@@ -1258,6 +1318,8 @@ def main(journal_date=None):
         "Notes",
     )
 
+    note_frame.journal_status_var = journal_status_var
+
     fill_note_section(
         note_frame,
         note_lines,
@@ -1309,6 +1371,8 @@ def main(journal_date=None):
         main_frame,
         "Events",
     )
+
+    event_frame.journal_status_var = journal_status_var
 
     fill_event_section(
         event_frame,
