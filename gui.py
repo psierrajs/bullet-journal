@@ -118,6 +118,31 @@ def fill_task_section(
             value=task_line,
         ).pack(anchor="w", pady=2)
 
+def get_task_summary(task_lines):
+    open_count = 0
+    completed_count = 0
+    cancelled_count = 0
+    migrated_count = 0
+
+    for task in task_lines:
+        if task.startswith("- [ ]"):
+            open_count += 1
+        elif task.startswith("- [x]"):
+            completed_count += 1
+        elif task.startswith("- [-]"):
+            cancelled_count += 1
+        elif task.startswith("- [>]"):
+            migrated_count += 1
+
+    total = len(task_lines)
+
+    return (
+        f"{total} tasks · "
+        f"{open_count} open · "
+        f"{completed_count} completed · "
+        f"{cancelled_count} cancelled · "
+        f"{migrated_count} migrated"
+    )
 
 def refresh_tasks(
     journal_file,
@@ -132,6 +157,17 @@ def refresh_tasks(
 
     if updated_tasks is None:
         raise ValueError("Invalid journal structure.")
+
+    summary_var = getattr(
+        task_frame,
+        "summary_var",
+        None,
+    )
+
+    if summary_var is not None:
+        summary_var.set(
+            get_task_summary(updated_tasks)
+        )
 
     selected_task_var.set("")
 
@@ -959,6 +995,44 @@ def main():
         selected_task_var,
     )
 
+    task_summary_var = tk.StringVar(
+        value=get_task_summary(task_lines)
+    )
+
+    task_frame.summary_var = task_summary_var
+
+    summary_frame = ttk.Frame(
+        main_frame,
+        padding=(10, 8),
+    )
+
+    summary_frame.pack(
+        fill="x",
+        pady=(0, 10),
+    )
+
+    ttk.Label(
+        summary_frame,
+        text="Task Summary",
+        font=("Helvetica", 14, "bold"),
+    ).pack(anchor="w")
+
+    ttk.Label(
+        summary_frame,
+        textvariable=task_summary_var,
+        font=("Helvetica", 12),
+    ).pack(
+        anchor="w",
+        pady=(4, 0),
+    )
+
+    ttk.Separator(
+        summary_frame,
+        orient="horizontal",
+    ).pack(
+        fill="x",
+        pady=(8, 0),
+    )
     button_frame = ttk.Frame(main_frame)
     button_frame.pack(
         fill="x",
