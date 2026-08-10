@@ -894,16 +894,6 @@ def main(journal_date=None):
         padx=(8, 0),
     )
 
-    ttk.Button(
-        navigation_frame,
-        text="Previous Day",
-        command=lambda: load_date(
-            state["date"] - timedelta(days=1)
-        ),
-    ).pack(
-        side="left",
-        padx=(8, 0),
-    )
 
     # -------------------------------------------------
     # Tasks
