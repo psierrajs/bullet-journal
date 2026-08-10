@@ -28,9 +28,12 @@ def load_journal(journal_date):
     )
 
     if not journal_file.exists():
-        create_daily_journal(
-            journal_file,
+        return (
             journal_date,
+            journal_file,
+            [],
+            [],
+            [],
         )
 
     content = journal_file.read_text(
@@ -239,7 +242,20 @@ def add_task_gui(
     if not task_text:
         return
 
-    content = journal_file.read_text(encoding="utf-8")
+    if not journal_file.exists():
+      journal_date = date.fromisoformat(
+        journal_file.stem
+    )
+
+    create_daily_journal(
+        journal_file,
+        journal_date,
+    )
+
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
     section_positions = get_section_positions(content)
 
     if section_positions is None:
@@ -571,6 +587,16 @@ def add_note_gui(
     if not note_text:
         return
 
+    if not journal_file.exists():
+        journal_date = date.fromisoformat(
+            journal_file.stem
+        )
+
+        create_daily_journal(
+            journal_file,
+            journal_date,
+        )
+
     content = journal_file.read_text(
         encoding="utf-8"
     )
@@ -784,6 +810,15 @@ def add_event_gui(
     if not event_text:
         return
 
+    if not journal_file.exists():
+        journal_date = date.fromisoformat(
+            journal_file.stem
+        )
+
+        create_daily_journal(
+            journal_file,
+            journal_date,
+        )
     content = journal_file.read_text(
         encoding="utf-8"
     )
