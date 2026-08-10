@@ -1324,33 +1324,43 @@ def main(journal_date=None):
             return
 
         load_date(target_date)
-def open_search(event=None):
-    search_journals_gui(
-        root,
-        Path("journal"),
-        load_date,
-    )
+    def open_search(event=None):
+        search_journals_gui(
+            root,
+            Path("journal"),
+            load_date,
+        )
 
+    def go_previous_day(event=None):
+        load_date(
+            state["date"] - timedelta(days=1)
+        )
 
-def go_previous_day(event=None):
-    load_date(
-        state["date"] - timedelta(days=1)
-    )
-
-
-def go_next_day(event=None):
-    load_date(
-        state["date"] + timedelta(days=1)
-    )
+    def go_next_day(event=None):
+        load_date(
+            state["date"] + timedelta(days=1)
+        )
 
     root.bind("<Command-f>", open_search)
     root.bind("<Control-f>", open_search)
 
-    root.bind("<Command-Left>", go_previous_day)
-    root.bind("<Control-Left>", go_previous_day)
+    root.bind(
+        "<Command-Left>",
+        go_previous_day,
+    )
+    root.bind(
+        "<Control-Left>",
+        go_previous_day,
+    )
 
-    root.bind("<Command-Right>", go_next_day)
-    root.bind("<Control-Right>", go_next_day)
+    root.bind(
+        "<Command-Right>",
+        go_next_day,
+    )
+    root.bind(
+        "<Control-Right>",
+        go_next_day,
+    )
 
     root.mainloop()
 
