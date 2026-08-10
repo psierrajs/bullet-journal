@@ -141,6 +141,36 @@ def refresh_tasks(
         selected_task_var,
     )
 
+def refresh_notes(
+    journal_file,
+    note_frame,
+    selected_note_var,
+):
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
+    positions = get_section_positions(content)
+
+    if positions is None:
+        raise ValueError("Invalid journal structure.")
+
+    _, notes_start, events_start = positions
+
+    notes = get_section_lines(
+        content,
+        notes_start,
+        events_start,
+    )
+
+    selected_note_var.set("")
+
+    fill_note_section(
+        note_frame,
+        notes,
+        selected_note_var,
+    )
+
 
 def add_task_gui(
     root,
@@ -489,13 +519,16 @@ def add_note_gui(
     if not note_text:
         return
 
-    content = journal_file.read_text(encoding="utf-8")
+    content = journal_file.read_text(
+        encoding="utf-8"
+    )
+
     section_positions = get_section_positions(content)
 
     if section_positions is None:
         raise ValueError("Invalid journal structure.")
 
-    tasks_start, notes_start, events_start = section_positions
+    _, _, events_start = section_positions
 
     insert_before_section(
         content,
@@ -504,37 +537,11 @@ def add_note_gui(
         journal_file,
     )
 
-    updated_content = journal_file.read_text(
-        encoding="utf-8"
-    )
-
-    updated_positions = get_section_positions(
-        updated_content
-    )
-
-    if updated_positions is None:
-        raise ValueError("Invalid journal structure.")
-
-    (
-        updated_tasks_start,
-        updated_notes_start,
-        updated_events_start,
-    ) = updated_positions
-
-    updated_notes = get_section_lines(
-        updated_content,
-        updated_notes_start,
-        updated_events_start,
-    )
-
-    selected_note_var.set("")
-
-    fill_note_section(
+    refresh_notes(
+        journal_file,
         note_frame,
-        updated_notes,
         selected_note_var,
     )
-
 def edit_note_gui(
     root,
     journal_file,
@@ -600,9 +607,9 @@ def edit_note_gui(
 
     selected_note_var.set("")
 
-    fill_note_section(
+    refresh_notes(
+        journal_file,
         note_frame,
-        updated_notes,
         selected_note_var,
     )
 
@@ -754,9 +761,9 @@ def delete_note_gui(
 
     selected_note_var.set("")
 
-    fill_note_section(
+    refresh_notes(
+        journal_file,
         note_frame,
-        updated_notes,
         selected_note_var,
     )
 
