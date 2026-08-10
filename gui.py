@@ -938,6 +938,33 @@ def open_journal_date(root, journal_date):
     root.destroy()
     main(journal_date)
 
+def go_to_date_gui(root):
+    date_text = simpledialog.askstring(
+        "Go to date",
+        "Enter date (YYYY-MM-DD):",
+        parent=root,
+    )
+
+    if not date_text:
+        return
+
+    try:
+        target_date = date.fromisoformat(
+            date_text.strip()
+        )
+    except ValueError:
+        messagebox.showerror(
+            "Invalid date",
+            "Please enter the date as YYYY-MM-DD.",
+            parent=root,
+        )
+        return
+
+    open_journal_date(
+        root,
+        target_date,
+    )
+
 def main(journal_date=None):
 
     if journal_date is None:
@@ -1073,6 +1100,14 @@ def main(journal_date=None):
         command=lambda: open_journal_date(
             root,
             current_date + timedelta(days=1),
+        ),
+    ).pack(side="left", padx=(0, 8))
+
+    ttk.Button(
+        navigation_frame,
+        text="Go to Date",
+        command=lambda: go_to_date_gui(
+            root
         ),
     ).pack(side="left")
 
