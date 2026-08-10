@@ -1024,6 +1024,256 @@ def refresh_journal_status(
             get_journal_status(journal_file)
         )
 
+def search_journal_files(
+    journal_folder,
+    search_text,
+):
+    results = []
+
+    journal_files = sorted(
+        journal_folder.glob("*.md")
+    )
+
+    for journal_file in journal_files:
+        content = journal_file.read_text(
+            encoding="utf-8"
+        )
+
+        for line_number, line in enumerate(
+            content.splitlines(),
+            start=1,
+        ):
+            if search_text.lower() in line.lower():
+                results.append(
+                    (
+                        journal_file.stem,
+                        line_number,
+                        line,
+                    )
+                )
+
+    return results
+
+def search_journals_gui(
+    root,
+    journal_folder,
+    load_date_callback,
+):
+    search_window = tk.Toplevel(root)
+    search_window.title("Search Journals")
+    search_window.geometry("750x450")
+    search_window.transient(root)
+
+    search_frame = ttk.Frame(
+        search_window,
+        padding=15,
+    )
+    search_frame.pack(
+        fill="both",
+        expand=True,
+    )
+
+    ttk.Label(
+        search_frame,
+        text="Search journals",
+        font=("Helvetica", 18, "bold"),
+    ).pack(
+        anchor="w",
+        pady=(0, 10),
+    )
+
+    search_entry = ttk.Entry(
+        search_frame,
+    )
+    search_entry.pack(
+        fill="x",
+        pady=(0, 10),
+    )
+
+    result_frame = ttk.Frame(
+        search_frame
+    )
+    result_frame.pack(
+        fill="both",
+        expand=True,
+    )
+
+    columns = (
+        "date",
+        "line",
+        "content",
+    )
+
+    result_tree = ttk.Treeview(
+        result_frame,
+        columns=columns,
+        show="headings",
+        selectmode="browse",
+    )
+
+    result_tree.heading(
+        "date",
+        text="Date",
+    )
+
+    result_tree.heading(
+        "line",
+        text="Line",
+    )
+
+    result_tree.heading(
+        "content",
+        text="Match",
+    )
+
+    result_tree.column(
+        "date",
+        width=110,
+        stretch=False,
+    )
+
+    result_tree.column(
+        "line",
+        width=60,
+        stretch=False,
+    )
+
+    result_tree.column(
+        "content",
+        width=500,
+    )
+
+    result_scrollbar = ttk.Scrollbar(
+        result_frame,
+        orient="vertical",
+        command=result_tree.yview,
+    )
+
+    result_tree.configure(
+        yscrollcommand=result_scrollbar.set
+    )
+
+    result_tree.pack(
+        side="left",
+        fill="both",
+        expand=True,
+    )
+
+    result_scrollbar.pack(
+        side="right",
+        fill="y",
+    )
+
+    status_var = tk.StringVar(
+        value="Enter text to search."
+    )
+
+    ttk.Label(
+        search_frame,
+        textvariable=status_var,
+    ).pack(
+        anchor="w",
+        pady=(10, 0),
+    )
+
+    def run_search():
+        search_text = search_entry.get().strip()
+
+        for item in result_tree.get_children():
+            result_tree.delete(item)
+
+        if not search_text:
+            status_var.set(
+                "Enter text to search."
+            )
+            return
+
+        results = search_journal_files(
+            journal_folder,
+            search_text,
+        )
+
+        for (
+            journal_date,
+            line_number,
+            line,
+        ) in results:
+            result_tree.insert(
+                "",
+                "end",
+                values=(
+                    journal_date,
+                    line_number,
+                    line,
+                ),
+            )
+
+        if results:
+            status_var.set(
+                f"{len(results)} match(es) found."
+            )
+        else:
+            status_var.set(
+                "No matches found."
+            )
+
+    def open_selected_result():
+        selected = result_tree.selection()
+
+        if not selected:
+            return
+
+        values = result_tree.item(
+            selected[0],
+            "values",
+        )
+
+        journal_date = date.fromisoformat(
+            values[0]
+        )
+
+        load_date_callback(
+            journal_date
+        )
+
+        search_window.destroy()
+
+    button_frame = ttk.Frame(
+        search_frame
+    )
+
+    button_frame.pack(
+        fill="x",
+        pady=(10, 0),
+    )
+
+    ttk.Button(
+        button_frame,
+        text="Search",
+        command=run_search,
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
+
+    ttk.Button(
+        button_frame,
+        text="Open Selected",
+        command=open_selected_result,
+    ).pack(side="left")
+
+    search_entry.bind(
+        "<Return>",
+        lambda event: run_search(),
+    )
+
+    result_tree.bind(
+        "<Double-1>",
+        lambda event: open_selected_result(),
+    )
+
+    search_entry.focus_set()
+
 def main(journal_date=None):
     if journal_date is None:
         journal_date = date.today()
@@ -1205,6 +1455,19 @@ def main(journal_date=None):
         text="Go to Date",
         command=lambda: go_to_date(),
     ).pack(side="left")
+
+    ttk.Button(
+        navigation_frame,
+        text="Search",
+        command=lambda: search_journals_gui(
+            root,
+            Path("journal"),
+            load_date,
+        ),
+    ).pack(
+        side="left",
+        padx=(8, 0),
+    )
 
     # -------------------------------------------------
     # Tasks
