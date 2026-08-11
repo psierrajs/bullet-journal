@@ -1,4 +1,4 @@
-from journal_parser import count_tasks_by_status
+from bullet_journal.journal_parser import count_tasks_by_status
 
 def display_tasks(task_lines):
     print("\nToday's tasks:\n")

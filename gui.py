@@ -4,7 +4,7 @@ from tkinter import messagebox, simpledialog, ttk
 from datetime import date, timedelta
 from pathlib import Path
 
-from journal_parser import (
+from bullet_journal.journal_parser import (
     get_section_lines,
     get_section_positions,
     get_task_lines,

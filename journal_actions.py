@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from journal_parser import (
+from bullet_journal.journal_parser import (
     get_section_positions,
     get_task_lines,
 )

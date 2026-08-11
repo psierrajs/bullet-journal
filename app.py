@@ -18,7 +18,7 @@ from journal_actions import (
     search_journals,
     view_journal,
 )
-from journal_parser import (
+from bullet_journal.journal_parser import (
     get_section_lines,
     get_section_positions,
     get_task_lines,

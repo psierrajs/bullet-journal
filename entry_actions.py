@@ -1,7 +1,7 @@
 from journal_storage import write_journal
 from terminal_ui import pause, select_line
 
-from journal_parser import get_section_positions
+from bullet_journal.journal_parser import get_section_positions
 from journal_storage import (
     append_line,
     insert_before_section,
