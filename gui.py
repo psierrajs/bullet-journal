@@ -27,7 +27,7 @@ from bullet_journal.gui_helpers import (
     refresh_journal_status,
 )
 
-from gui_task_actions import (
+from bullet_journal.gui_task_actions import (
     add_task_gui,
     cancel_task_gui,
     complete_task_gui,
