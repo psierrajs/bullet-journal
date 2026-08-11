@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 from datetime import date, timedelta
 
-from gui_helpers import refresh_journal_status
+from bullet_journal.gui_helpers import refresh_journal_status
 from bullet_journal.journal_parser import (
     get_section_positions,
     get_task_lines,

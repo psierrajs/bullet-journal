@@ -22,7 +22,7 @@ from bullet_journal.journal_queries import (
     search_journal_files,
 )
 
-from gui_helpers import (
+from bullet_journal.gui_helpers import (
     get_journal_status,
     refresh_journal_status,
 )
