@@ -62,7 +62,7 @@ from bullet_journal.journal_queries import (
     search_journal_files,
 )
 
-from gui_backup_actions import (
+from bullet_journal.gui_backup_actions import (
     restore_backup_gui,
 )
 

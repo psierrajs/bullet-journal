@@ -1,7 +1,7 @@
 from datetime import date
 from tkinter import messagebox
 
-from bullet_journal.journal_storage import write_journal
+from .journal_storage import write_journal
 
 
 def restore_backup_gui(
