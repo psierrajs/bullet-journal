@@ -17,7 +17,7 @@ from journal_storage import (
 )
 from bullet_journal.version import __version__
 
-from journal_queries import (
+from bullet_journal.journal_queries import (
     get_pending_tasks,
     search_journal_files,
 )
@@ -56,7 +56,7 @@ from gui_event_actions import (
     refresh_events,
 )
 
-from journal_queries import (
+from bullet_journal.journal_queries import (
     get_journal_dates,
     get_pending_tasks,
     search_journal_files,

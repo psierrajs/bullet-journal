@@ -1,4 +1,4 @@
-from bullet_journal.journal_parser import get_task_lines
+from .journal_parser import get_task_lines
 
 from datetime import date
 

@@ -3,7 +3,7 @@ import unittest
 from datetime import date
 from pathlib import Path
 
-from journal_queries import (
+from bullet_journal.journal_queries import (
     get_journal_dates,
     get_pending_tasks,
     search_journal_files,
