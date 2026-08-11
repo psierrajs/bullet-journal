@@ -48,7 +48,7 @@ from gui_note_actions import (
     refresh_notes,
 )
 
-from gui_event_actions import (
+from bullet_journal.gui_event_actions import (
     add_event_gui,
     delete_event_gui,
     edit_event_gui,
