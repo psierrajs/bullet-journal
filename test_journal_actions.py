@@ -5,7 +5,7 @@ from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
-from journal_actions import (
+from bullet_journal.journal_actions import (
     list_journals,
     list_pending_tasks,
     review_previous_day,
@@ -15,7 +15,7 @@ from journal_actions import (
 
 class ViewJournalTests(unittest.TestCase):
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="2026-08-01")
     def test_displays_selected_journal(
@@ -61,7 +61,7 @@ class ViewJournalTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="2026-08-02")
     def test_reports_when_journal_does_not_exist(
@@ -84,7 +84,7 @@ class ViewJournalTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="not-a-date")
     def test_rejects_invalid_date(
@@ -109,7 +109,7 @@ class ViewJournalTests(unittest.TestCase):
 
 class JournalSearchTests(unittest.TestCase):
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="pump")
     def test_finds_text_across_journals(
@@ -176,7 +176,7 @@ class JournalSearchTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="GREENHOUSE")
     def test_search_is_case_insensitive(
@@ -214,7 +214,7 @@ class JournalSearchTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="solar panel")
     def test_reports_when_no_matches_are_found(
@@ -252,7 +252,7 @@ class JournalSearchTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     @patch("builtins.input", return_value="")
     def test_rejects_empty_search_text(
@@ -277,7 +277,7 @@ class JournalSearchTests(unittest.TestCase):
 
 class JournalListingTests(unittest.TestCase):
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_lists_journals_in_date_order(
         self,
@@ -327,7 +327,7 @@ class JournalListingTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_reports_when_no_journals_exist(
         self,
@@ -348,7 +348,7 @@ class JournalListingTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_ignores_markdown_files_without_date_names(
         self,
@@ -389,7 +389,7 @@ class JournalListingTests(unittest.TestCase):
 
 class PendingTaskListTests(unittest.TestCase):
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_lists_pending_tasks_from_multiple_days(
         self,
@@ -456,7 +456,7 @@ class PendingTaskListTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("sys.stdout", new_callable=StringIO)
     def test_reports_when_no_pending_tasks_exist(
         self,
@@ -495,7 +495,7 @@ class PendingTaskListTests(unittest.TestCase):
 
 class PreviousDayReviewTests(unittest.TestCase):
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "1"]
@@ -581,7 +581,7 @@ class PreviousDayReviewTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     @patch("builtins.input", return_value="2")
     def test_returns_without_migrating_task(
         self,
@@ -646,7 +646,7 @@ class PreviousDayReviewTests(unittest.TestCase):
 
             mock_pause.assert_not_called()
 
-    @patch("journal_actions.pause") 
+    @patch("bullet_journal.journal_actions.pause") 
     def test_reports_when_previous_journal_is_missing(
         self,
         mock_pause
@@ -679,7 +679,7 @@ class PreviousDayReviewTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_actions.pause")
+    @patch("bullet_journal.journal_actions.pause")
     def test_reports_when_previous_day_has_no_pending_tasks(
         self,
         mock_pause

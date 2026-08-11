@@ -11,7 +11,7 @@ from bullet_journal.entry_actions import (
     edit_event,
     edit_note,
 )
-from journal_actions import (
+from bullet_journal.journal_actions import (
     list_journals,
     list_pending_tasks,
     review_previous_day,

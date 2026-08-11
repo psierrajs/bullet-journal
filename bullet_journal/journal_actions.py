@@ -1,14 +1,14 @@
 from datetime import date, timedelta
 
-from bullet_journal.journal_parser import (
+from .journal_parser import (
     get_section_positions,
     get_task_lines,
 )
-from bullet_journal.journal_storage import (
+from .journal_storage import (
     insert_before_section,
     replace_task,
 )
-from bullet_journal.terminal_ui import pause, select_task
+from .terminal_ui import pause, select_task
 def view_journal(journal_folder):
     date_text = input(
         "Enter the date to view (YYYY-MM-DD): "
