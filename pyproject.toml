@@ -1,7 +1,7 @@
 [project]
 name = "bullet-journal"
-version = "0.1.0"
-description = "A local-first command-line bullet journal using Markdown files."
+version = "1.1.0"
+description = "A local-first Bullet Journal application with graphical and command-line interfaces using Markdown files."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
