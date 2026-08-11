@@ -15,7 +15,7 @@ from journal_storage import (
     replace_task,
     write_journal,
 )
-from version import __version__
+from bullet_journal.version import __version__
 
 from journal_queries import (
     get_pending_tasks,

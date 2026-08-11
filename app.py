@@ -1,4 +1,4 @@
-from version import __version__
+from bullet_journal.version import __version__
 
 from datetime import date
 from pathlib import Path

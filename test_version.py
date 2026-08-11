@@ -1,6 +1,6 @@
 import unittest
 
-from version import __version__
+from bullet_journal.version import __version__
 
 
 class VersionTests(unittest.TestCase):
