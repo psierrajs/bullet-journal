@@ -36,7 +36,7 @@ from task_actions import (
     migrate_task,
     reopen_task,
 )
-from terminal_ui import (
+from bullet_journal.terminal_ui import (
     display_journal_details,
     display_menu,
     display_tasks,

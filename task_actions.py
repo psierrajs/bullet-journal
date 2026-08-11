@@ -7,7 +7,7 @@ from journal_storage import (
     replace_task,
     write_journal,
 )
-from terminal_ui import pause, select_task
+from bullet_journal.terminal_ui import pause, select_task
 
 def complete_task(content, task_lines, journal_file):
     if not task_lines:

@@ -8,7 +8,7 @@ from journal_storage import (
     insert_before_section,
     replace_task,
 )
-from terminal_ui import pause, select_task
+from bullet_journal.terminal_ui import pause, select_task
 def view_journal(journal_folder):
     date_text = input(
         "Enter the date to view (YYYY-MM-DD): "

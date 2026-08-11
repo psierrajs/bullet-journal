@@ -3,7 +3,7 @@ from io import StringIO
 from unittest.mock import patch
 from io import StringIO
 
-from terminal_ui import (
+from bullet_journal.terminal_ui import (
     build_progress_bar,
     display_journal_details,
     display_menu,
