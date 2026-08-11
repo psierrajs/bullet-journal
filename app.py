@@ -27,7 +27,7 @@ from bullet_journal.journal_storage import (
     create_daily_journal,
     restore_backup,
 )
-from task_actions import (
+from bullet_journal.task_actions import (
     add_task,
     cancel_task,
     complete_task,

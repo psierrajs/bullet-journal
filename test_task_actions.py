@@ -4,7 +4,7 @@ from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
-from task_actions import (
+from bullet_journal.task_actions import (
     add_task,
     cancel_task,
     complete_task,
@@ -159,7 +159,7 @@ class AddTaskTests(unittest.TestCase):
 
 class CancelTaskTests(unittest.TestCase):
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_cancels_open_task(
         self,
@@ -212,7 +212,7 @@ class CancelTaskTests(unittest.TestCase):
                 expected_content
             )
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_does_not_change_already_cancelled_task(
         self,
@@ -259,7 +259,7 @@ class CancelTaskTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_does_not_cancel_completed_task(
         self,
@@ -308,7 +308,7 @@ class CancelTaskTests(unittest.TestCase):
 
 class CompleteTaskTests(unittest.TestCase):
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_completes_selected_task(
         self,
@@ -368,7 +368,7 @@ class CompleteTaskTests(unittest.TestCase):
                 "Enter the number of the completed task: "
             )
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_does_not_change_already_completed_task(
         self,
@@ -417,7 +417,7 @@ class CompleteTaskTests(unittest.TestCase):
 
 class DeleteTaskTests(unittest.TestCase):
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "y"]
@@ -477,7 +477,7 @@ class DeleteTaskTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "n"]
@@ -527,7 +527,7 @@ class DeleteTaskTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     def test_does_nothing_when_task_list_is_empty(
         self,
         mock_pause
@@ -565,7 +565,7 @@ class DeleteTaskTests(unittest.TestCase):
 
 class EditTaskTests(unittest.TestCase):
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "Buy vegetable seeds"]
@@ -622,7 +622,7 @@ class EditTaskTests(unittest.TestCase):
             )
 
             mock_pause.assert_called_once()
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "Purchase vegetable seeds"]
@@ -674,7 +674,7 @@ class EditTaskTests(unittest.TestCase):
                 expected_content
             )
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", ""]
@@ -722,7 +722,7 @@ class EditTaskTests(unittest.TestCase):
 
 class MigrateTaskTests(unittest.TestCase):
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_migrates_open_task_to_next_day(
         self,
@@ -795,7 +795,7 @@ class MigrateTaskTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_does_not_migrate_completed_task(
         self,
@@ -850,7 +850,7 @@ class MigrateTaskTests(unittest.TestCase):
             self.assertFalse(tomorrow_file.exists())
             mock_pause.assert_called_once()
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_does_not_migrate_cancelled_task(
         self,
@@ -907,7 +907,7 @@ class MigrateTaskTests(unittest.TestCase):
 
 class ReopenTaskTests(unittest.TestCase):
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_reopens_completed_task(
         self,
@@ -960,7 +960,7 @@ class ReopenTaskTests(unittest.TestCase):
                 expected_content
             )
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_reopens_cancelled_task(
         self,
@@ -1013,7 +1013,7 @@ class ReopenTaskTests(unittest.TestCase):
                 expected_content
             )
 
-    @patch("task_actions.pause")
+    @patch("bullet_journal.task_actions.pause")
     @patch("builtins.input", return_value="1")
     def test_does_not_change_open_task(
         self,
