@@ -1,12 +1,12 @@
 from datetime import date
 from tkinter import messagebox, simpledialog, ttk
 
-from bullet_journal.gui_helpers import refresh_journal_status
-from bullet_journal.journal_parser import (
+from .gui_helpers import refresh_journal_status
+from .journal_parser import (
     get_section_lines,
     get_section_positions,
 )
-from bullet_journal.journal_storage import (
+from .journal_storage import (
     create_daily_journal,
     insert_before_section,
     write_journal,

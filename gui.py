@@ -40,7 +40,7 @@ from gui_task_actions import (
     reopen_task_gui,
 )
 
-from gui_note_actions import (
+from bullet_journal.gui_note_actions import (
     add_note_gui,
     delete_note_gui,
     edit_note_gui,
