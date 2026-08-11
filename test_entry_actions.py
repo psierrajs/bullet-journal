@@ -4,7 +4,7 @@ from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
-from entry_actions import (
+from bullet_journal.entry_actions import (
     add_event,
     add_note,
     delete_event,
@@ -290,7 +290,7 @@ class AddNoteTests(unittest.TestCase):
 
 class DeleteEventTests(unittest.TestCase):
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "y"]
@@ -346,7 +346,7 @@ class DeleteEventTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "n"]
@@ -392,7 +392,7 @@ class DeleteEventTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     def test_does_nothing_when_event_list_is_empty(
         self,
         mock_pause
@@ -430,7 +430,7 @@ class DeleteEventTests(unittest.TestCase):
 
 class DeleteNoteTests(unittest.TestCase):
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "y"]
@@ -486,7 +486,7 @@ class DeleteNoteTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "n"]
@@ -532,7 +532,7 @@ class DeleteNoteTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     def test_does_nothing_when_note_list_is_empty(
         self,
         mock_pause
@@ -570,7 +570,7 @@ class DeleteNoteTests(unittest.TestCase):
 
 class EditEventTests(unittest.TestCase):
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "19:00 Project meeting"]
@@ -627,7 +627,7 @@ class EditEventTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", ""]
@@ -673,7 +673,7 @@ class EditEventTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     def test_does_nothing_when_event_list_is_empty(
         self,
         mock_pause
@@ -711,7 +711,7 @@ class EditEventTests(unittest.TestCase):
 
 class EditNoteTests(unittest.TestCase):
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", "Greenhouse was very warm"]
@@ -768,7 +768,7 @@ class EditNoteTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("entry_actions.pause")
+    @patch("bullet_journal.entry_actions.pause")
     @patch(
         "builtins.input",
         side_effect=["1", ""]

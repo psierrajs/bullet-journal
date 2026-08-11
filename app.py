@@ -3,7 +3,7 @@ from bullet_journal.version import __version__
 from datetime import date
 from pathlib import Path
 
-from entry_actions import (
+from bullet_journal.entry_actions import (
     add_event,
     add_note,
     delete_event,
