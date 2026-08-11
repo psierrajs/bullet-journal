@@ -4,7 +4,7 @@ from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
-from journal_storage import (
+from bullet_journal.journal_storage import (
     append_line,
     create_daily_journal,
     insert_before_section,
@@ -304,7 +304,7 @@ class LineAppendingTests(unittest.TestCase):
 
 class RestoreBackupTests(unittest.TestCase):
 
-    @patch("journal_storage.pause")
+    @patch("bullet_journal.journal_storage.pause")
     @patch("builtins.input", return_value="y")
     def test_restores_backup(
         self,
@@ -364,7 +364,7 @@ class RestoreBackupTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_storage.pause")
+    @patch("bullet_journal.journal_storage.pause")
     @patch("builtins.input", return_value="n")
     def test_keeps_current_journal_when_restore_is_cancelled(
         self,
@@ -416,7 +416,7 @@ class RestoreBackupTests(unittest.TestCase):
 
             mock_pause.assert_called_once()
 
-    @patch("journal_storage.pause")
+    @patch("bullet_journal.journal_storage.pause")
     def test_handles_missing_backup(
         self,
         mock_pause

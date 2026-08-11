@@ -6,7 +6,7 @@ from bullet_journal.journal_parser import (
     get_section_lines,
     get_section_positions,
 )
-from journal_storage import (
+from bullet_journal.journal_storage import (
     create_daily_journal,
     write_journal,
 )

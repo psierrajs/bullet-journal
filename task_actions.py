@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from bullet_journal.journal_parser import get_section_positions
-from journal_storage import (
+from bullet_journal.journal_storage import (
     create_daily_journal,
     insert_before_section,
     replace_task,

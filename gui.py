@@ -9,7 +9,7 @@ from bullet_journal.journal_parser import (
     get_section_positions,
     get_task_lines,
 )
-from journal_storage import (
+from bullet_journal.journal_storage import (
     create_daily_journal,
     insert_before_section,
     replace_task,

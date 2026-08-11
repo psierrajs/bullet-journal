@@ -1,7 +1,7 @@
 import shutil
 
-from bullet_journal.journal_parser import validate_journal_content
-from bullet_journal.terminal_ui import pause
+from .journal_parser import validate_journal_content
+from .terminal_ui import pause
 
 def write_journal(journal_file, content):
     if not validate_journal_content(content):
