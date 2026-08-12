@@ -155,6 +155,24 @@ From the project directory:
 ```bash
 python3 gui.py
 ```
+## Cross-platform desktop builds
+
+The application can also be packaged as a standalone desktop application using PyInstaller.
+
+GitHub Actions builds the application automatically for:
+
+- macOS
+- Windows
+- Linux
+
+The workflow runs the test suite before packaging and produces downloadable build artifacts for each operating system.
+
+Typical artifacts include:
+
+```text
+BulletJournal-macOS
+BulletJournal-Windows
+BulletJournal-Linux
 
 ## Running the command-line interface
 
