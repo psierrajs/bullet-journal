@@ -141,6 +141,13 @@ Backups can be restored from either the CLI or GUI.
 
 Tkinter is included with many Python installations, although some Linux distributions may package it separately.
 
+## Installing from a wheel
+
+Build the package with:
+
+```bash
+python3 -m build
+
 ## Running the graphical interface
 
 From the project directory:
