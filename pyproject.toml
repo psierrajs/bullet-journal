@@ -12,3 +12,10 @@ Repository = "https://github.com/psierrajs/bullet-journal"
 [tool.unittest]
 start-directory = "."
 pattern = "test_*.py"
+
+[project.scripts]
+bullet-journal = "bullet_journal.app:main"
+bullet-journal-gui = "bullet_journal.gui:main"
+
+[tool.setuptools]
+packages = ["bullet_journal"]
