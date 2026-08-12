@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog, ttk
 
 from datetime import date, timedelta
-from pathlib import Path
 
 from .journal_parser import (
     get_section_lines,
@@ -16,6 +15,8 @@ from .journal_storage import (
     write_journal,
 )
 from .version import __version__
+
+from .paths import get_journal_directory
 
 from .journal_queries import (
     get_journal_dates,
@@ -62,8 +63,11 @@ from .gui_backup_actions import (
 )
 
 def load_journal(journal_date):
-    journal_folder = Path("journal")
-    journal_folder.mkdir(exist_ok=True)
+    journal_folder = get_journal_directory()
+    journal_folder.mkdir(
+    parents=True,
+    exist_ok=True,
+)
 
     journal_file = (
         journal_folder
@@ -855,7 +859,7 @@ def main(journal_date=None):
         text="Search",
         command=lambda: search_journals_gui(
             root,
-            Path("journal"),
+            get_journal_directory(),
             load_date,
         ),
     ).pack(
@@ -868,7 +872,7 @@ def main(journal_date=None):
         text="Pending Tasks",
         command=lambda: pending_tasks_gui(
             root,
-            Path("journal"),
+            get_journal_directory(),
             load_date,
         ),
     ).pack(
@@ -881,7 +885,7 @@ def main(journal_date=None):
         text="Journals",
         command=lambda: list_journals_gui(
             root,
-            Path("journal"),
+            get_journal_directory(),
             load_date,
         ),
     ).pack(
@@ -1323,7 +1327,7 @@ def main(journal_date=None):
     def open_search(event=None):
         search_journals_gui(
             root,
-            Path("journal"),
+            get_journal_directory(),
             load_date,
         )
 

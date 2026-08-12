@@ -6,3 +6,4 @@ journal/
 *.egg-info/
 build/
 dist/
+*.spec

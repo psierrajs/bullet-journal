@@ -1,7 +1,8 @@
 from datetime import date
-from pathlib import Path
 
 from .version import __version__
+
+from .paths import get_journal_directory
 
 from .entry_actions import (
     add_event,
@@ -48,7 +49,10 @@ def main():
     filename = f"{today.isoformat()}.md"
 
     journal_folder = Path("journal")
-    journal_folder.mkdir(exist_ok=True)
+    journal_folder.mkdir(
+    parents=True,
+    exist_ok=True,
+)
 
     journal_file = journal_folder / filename
 
