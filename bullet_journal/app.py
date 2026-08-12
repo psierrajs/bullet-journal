@@ -1,9 +1,9 @@
-from bullet_journal.version import __version__
-
 from datetime import date
 from pathlib import Path
 
-from bullet_journal.entry_actions import (
+from .version import __version__
+
+from .entry_actions import (
     add_event,
     add_note,
     delete_event,
@@ -11,23 +11,23 @@ from bullet_journal.entry_actions import (
     edit_event,
     edit_note,
 )
-from bullet_journal.journal_actions import (
+from .journal_actions import (
     list_journals,
     list_pending_tasks,
     review_previous_day,
     search_journals,
     view_journal,
 )
-from bullet_journal.journal_parser import (
+from .journal_parser import (
     get_section_lines,
     get_section_positions,
     get_task_lines,
 )
-from bullet_journal.journal_storage import (
+from .journal_storage import (
     create_daily_journal,
     restore_backup,
 )
-from bullet_journal.task_actions import (
+from .task_actions import (
     add_task,
     cancel_task,
     complete_task,
@@ -36,12 +36,11 @@ from bullet_journal.task_actions import (
     migrate_task,
     reopen_task,
 )
-from bullet_journal.terminal_ui import (
+from .terminal_ui import (
     display_journal_details,
     display_menu,
     display_tasks,
 )
-
 
 def main():
     print(f"\nBullet Journal v{__version__}")
