@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - packaging-development
+    tags:
+      - "v*"
 
 permissions:
   contents: read
@@ -98,4 +100,32 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: dist/BulletJournal
           if-no-files-found: error
-          
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: release-artifacts
+
+      - name: Show downloaded artifacts
+        run: find release-artifacts -maxdepth 3 -type f -print
+
+      - name: Create GitHub Release
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            release-artifacts/BulletJournal-macOS/BulletJournal-macOS.zip \
+            release-artifacts/BulletJournal-Windows/BulletJournal.exe \
+            release-artifacts/BulletJournal-Linux/BulletJournal \
+            --verify-tag \
+            --generate-notes \
+            --title "Bullet Journal ${{ github.ref_name }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
