@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [1.2.2] - 2026-08-13
+
+### Fixed
+
+- Removed a duplicate artifact download declaration from the GitHub Release workflow.
+
 ## [1.2.1] - 2026-08-13
 
 ### Fixed
