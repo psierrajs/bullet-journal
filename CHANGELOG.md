@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-08-13
+
+### Fixed
+
+- Fixed the automated GitHub Release workflow by checking out the repository before creating a release.
+- Updated GitHub artifact actions to current versions.
+
 ## [1.2.0] - 2026-08-13
 
 ### Added
