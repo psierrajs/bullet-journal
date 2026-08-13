@@ -1,5 +1,10 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog, ttk
+from tkinter import (
+    filedialog,
+    messagebox,
+    simpledialog,
+    ttk,
+)
 
 from datetime import date, timedelta
 
@@ -8,6 +13,9 @@ from .journal_parser import (
     get_section_positions,
     get_task_lines,
 )
+
+from .export_actions import export_journals
+
 from .journal_storage import (
     create_daily_journal,
     insert_before_section,
@@ -1208,7 +1216,49 @@ def main(journal_date=None):
     # -------------------------------------------------
     # Journal actions
     # -------------------------------------------------
+    def export_journals_gui():
+        destination_file = filedialog.asksaveasfilename(
+            parent=root,
+            title="Export Journals",
+            defaultextension=".zip",
+            filetypes=[
+                ("ZIP archive", "*.zip"),
+            ],
+            initialfile="bullet-journal-export.zip",
+        )
 
+        if not destination_file:
+            return
+
+        try:
+            exported = export_journals(
+                get_journal_directory(),
+                destination_file,
+            )
+        except OSError as error:
+            messagebox.showerror(
+                "Export Journals",
+                (
+                    "The journals could not be exported.\n\n"
+                    f"{error}"
+                ),
+                parent=root,
+            )
+            return
+
+        if not exported:
+            messagebox.showinfo(
+                "Export Journals",
+                "There are no journals to export.",
+                parent=root,
+            )
+            return
+
+        messagebox.showinfo(
+            "Export Journals",
+            "Journals exported successfully.",
+            parent=root,
+        )
     journal_actions_frame = ttk.LabelFrame(
         main_frame,
         text="Journal Actions",
@@ -1236,6 +1286,15 @@ def main(journal_date=None):
         journal_actions_frame,
         text="Open Journal Folder",
         command=open_journal_directory,
+    ).pack(
+        side="left",
+        padx=(8, 0),
+    )
+
+    ttk.Button(
+        journal_actions_frame,
+        text="Export Journals",
+        command=export_journals_gui,
     ).pack(
         side="left",
         padx=(8, 0),
