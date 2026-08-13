@@ -147,6 +147,31 @@ Build the package with:
 
 ```bash
 python3 -m build
+````
+
+This creates distribution files in the `dist/` directory, including a platform-independent Python wheel such as:
+
+```text
+bullet_journal-1.1.0-py3-none-any.whl
+```
+
+Install the wheel with:
+
+```bash
+python3 -m pip install dist/bullet_journal-1.1.0-py3-none-any.whl
+```
+
+After installation, launch the command-line interface with:
+
+```bash
+bullet-journal
+```
+
+or the graphical interface with:
+
+```bash
+bullet-journal-gui
+```
 
 ## Running the graphical interface
 
@@ -155,24 +180,6 @@ From the project directory:
 ```bash
 python3 gui.py
 ```
-## Cross-platform desktop builds
-
-The application can also be packaged as a standalone desktop application using PyInstaller.
-
-GitHub Actions builds the application automatically for:
-
-- macOS
-- Windows
-- Linux
-
-The workflow runs the test suite before packaging and produces downloadable build artifacts for each operating system.
-
-Typical artifacts include:
-
-```text
-BulletJournal-macOS
-BulletJournal-Windows
-BulletJournal-Linux
 
 ## Running the command-line interface
 
@@ -183,6 +190,72 @@ python3 main.py
 ```
 
 Both interfaces operate on the same Markdown journal files.
+
+## Journal data location
+
+Journal files are stored in an operating-system-specific application data directory.
+
+Typical locations are:
+
+```text
+macOS:
+~/Library/Application Support/BulletJournal/journal/
+
+Windows:
+%APPDATA%\BulletJournal\journal\
+
+Linux:
+~/.local/share/BulletJournal/journal/
+```
+
+On Linux, the `XDG_DATA_HOME` environment variable is respected when configured.
+
+The graphical interface includes an **Open Journal Folder** action for opening the active journal storage directory directly in Finder, File Explorer or the Linux file manager.
+
+## Exporting journals
+
+The graphical interface includes an **Export Journals** action.
+
+It creates a ZIP archive containing the Markdown journal files, making it easy to:
+
+* create manual backups
+* transfer journals between computers
+* archive journal history
+* move the data independently of the application
+
+The Markdown files remain the source of truth and can be read without Bullet Journal.
+
+## Cross-platform desktop builds
+
+The application can also be packaged as a standalone desktop application using PyInstaller.
+
+GitHub Actions builds the application automatically for:
+
+* macOS
+* Windows
+* Linux
+
+The workflow runs the automated test suite before packaging and produces downloadable build artifacts for each operating system.
+
+Typical artifacts include:
+
+```text
+BulletJournal-macOS
+BulletJournal-Windows
+BulletJournal-Linux
+```
+
+The macOS artifact contains a `.app` bundle, the Windows build produces a `.exe`, and the Linux build produces a standalone executable.
+
+The same Python source code and Markdown journal format are shared across all platforms. Platform-specific behaviour is limited to storage paths and distribution packaging.
+
+### macOS Gatekeeper
+
+Current development builds are not code-signed or notarized.
+
+macOS may therefore display a Gatekeeper warning when opening a downloaded build. During development and testing, the application can be allowed manually from **System Settings → Privacy & Security**.
+
+Code signing and notarization are planned as release-hardening steps for future public distribution.
 
 ## Running the tests
 
@@ -198,41 +271,51 @@ Run the tests in verbose mode:
 python3 -m unittest -v
 ```
 
-The current automated test suite contains 114 tests covering journal parsing, storage, task and entry actions, terminal behaviour and journal queries.
+The current automated test suite contains **125 tests** covering journal parsing, storage, task and entry actions, terminal behaviour, journal queries, platform-specific paths and journal export.
 
 ## Project structure
 
 ```text
 bullet-journal/
-├── app.py
-├── main.py
+├── bullet_journal/
+│   ├── __init__.py
+│   ├── app.py
+│   ├── entry_actions.py
+│   ├── export_actions.py
+│   ├── gui.py
+│   ├── gui_backup_actions.py
+│   ├── gui_event_actions.py
+│   ├── gui_helpers.py
+│   ├── gui_note_actions.py
+│   ├── gui_task_actions.py
+│   ├── journal_actions.py
+│   ├── journal_parser.py
+│   ├── journal_queries.py
+│   ├── journal_storage.py
+│   ├── paths.py
+│   ├── task_actions.py
+│   ├── terminal_ui.py
+│   └── version.py
+├── .github/
+│   └── workflows/
+│       └── build-desktop.yml
 ├── gui.py
-├── gui_helpers.py
-├── gui_task_actions.py
-├── gui_note_actions.py
-├── gui_event_actions.py
-├── gui_backup_actions.py
-├── entry_actions.py
-├── journal_actions.py
-├── journal_parser.py
-├── journal_queries.py
-├── journal_storage.py
-├── task_actions.py
-├── terminal_ui.py
-├── version.py
+├── main.py
 ├── test_entry_actions.py
+├── test_export_actions.py
 ├── test_journal_actions.py
 ├── test_journal_parser.py
 ├── test_journal_queries.py
 ├── test_journal_storage.py
+├── test_paths.py
 ├── test_task_actions.py
 ├── test_terminal_ui.py
+├── test_version.py
 ├── CHANGELOG.md
 ├── pyproject.toml
 └── README.md
 ```
 
-The GUI-specific code is separated into focused modules rather than placing all application logic inside the main Tkinter window.
 
 ## Design principles
 
