@@ -16,8 +16,6 @@ from .journal_storage import (
 )
 from .version import __version__
 
-from .paths import get_journal_directory
-
 from .journal_queries import (
     get_journal_dates,
     get_pending_tasks,
@@ -60,6 +58,11 @@ from .gui_event_actions import (
 
 from .gui_backup_actions import (
     restore_backup_gui,
+)
+
+from .paths import (
+    get_journal_directory,
+    open_journal_directory,
 )
 
 def load_journal(journal_date):
@@ -1226,7 +1229,16 @@ def main(journal_date=None):
             load_date,
         ),
     ).pack(
-        anchor="w",
+        side="left",
+    )
+
+    ttk.Button(
+        journal_actions_frame,
+        text="Open Journal Folder",
+        command=open_journal_directory,
+    ).pack(
+        side="left",
+        padx=(8, 0),
     )
 
     # -------------------------------------------------

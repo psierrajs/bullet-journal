@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 from pathlib import Path
 
 
@@ -35,3 +36,26 @@ def get_app_data_directory():
 
 def get_journal_directory():
     return get_app_data_directory() / "journal"
+
+def open_journal_directory():
+    journal_directory = get_journal_directory()
+    journal_directory.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    if sys.platform == "darwin":
+        subprocess.run(
+            ["open", journal_directory],
+            check=False,
+        )
+        return
+
+    if sys.platform == "win32":
+        os.startfile(journal_directory)
+        return
+
+    subprocess.run(
+        ["xdg-open", journal_directory],
+        check=False,
+    )
