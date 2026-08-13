@@ -6,6 +6,7 @@ from unittest.mock import patch
 from bullet_journal.paths import (
     get_app_data_directory,
     get_journal_directory,
+    open_journal_directory,
 )
 
 
@@ -94,6 +95,103 @@ class AppDataDirectoryTests(unittest.TestCase):
             Path("/tmp/BulletJournal/journal"),
         )
 
+    @patch("bullet_journal.paths.subprocess.run")
+    @patch(
+        "bullet_journal.paths.get_journal_directory"
+    )
+    @patch(
+        "bullet_journal.paths.sys.platform",
+        "darwin",
+    )
+    def test_open_journal_directory_on_macos(
+        self,
+        mock_journal_directory,
+        mock_run,
+    ):
+        journal_directory = Path(
+            "/tmp/BulletJournal-test-macos"
+        )
+        mock_journal_directory.return_value = (
+            journal_directory
+        )
+
+        open_journal_directory()
+
+        self.assertTrue(
+            journal_directory.exists()
+        )
+        mock_run.assert_called_once_with(
+            ["open", journal_directory],
+            check=False,
+        )
+
+        journal_directory.rmdir()
+
+    @patch(
+        "bullet_journal.paths.os.startfile",
+        create=True,
+    )
+    @patch(
+        "bullet_journal.paths.get_journal_directory"
+    )
+    @patch(
+        "bullet_journal.paths.sys.platform",
+        "win32",
+    )
+    def test_open_journal_directory_on_windows(
+        self,
+        mock_journal_directory,
+        mock_startfile,
+    ):
+        journal_directory = Path(
+            "/tmp/BulletJournal-test-windows"
+        )
+        mock_journal_directory.return_value = (
+            journal_directory
+        )
+
+        open_journal_directory()
+
+        self.assertTrue(
+            journal_directory.exists()
+        )
+        mock_startfile.assert_called_once_with(
+            journal_directory
+        )
+
+        journal_directory.rmdir()
+
+    @patch("bullet_journal.paths.subprocess.run")
+    @patch(
+        "bullet_journal.paths.get_journal_directory"
+    )
+    @patch(
+        "bullet_journal.paths.sys.platform",
+        "linux",
+    )
+    def test_open_journal_directory_on_linux(
+        self,
+        mock_journal_directory,
+        mock_run,
+    ):
+        journal_directory = Path(
+            "/tmp/BulletJournal-test-linux"
+        )
+        mock_journal_directory.return_value = (
+            journal_directory
+        )
+
+        open_journal_directory()
+
+        self.assertTrue(
+            journal_directory.exists()
+        )
+        mock_run.assert_called_once_with(
+            ["xdg-open", journal_directory],
+            check=False,
+        )
+
+        journal_directory.rmdir()
 
 if __name__ == "__main__":
     unittest.main()
