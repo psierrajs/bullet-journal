@@ -4,6 +4,100 @@ All notable changes to this project will be documented in this file.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-08-13
+
+### Added
+
+- Installable Python package structure under `bullet_journal`
+- Installed command-line launcher: `bullet-journal`
+- Installed graphical launcher: `bullet-journal-gui`
+- Platform-independent Python wheel distribution
+- PyInstaller-based standalone desktop builds
+- Automated GitHub Actions builds for macOS, Windows and Linux
+- Downloadable build artifacts for all three supported desktop platforms
+- Automated GitHub Release workflow for version tags
+- Platform-specific application data directories
+- Open Journal Folder action in the graphical interface
+- Journal export to ZIP archives
+- Automated tests for platform-specific data paths
+- Automated tests for opening journal directories
+- Automated tests for journal export behaviour
+
+### Changed
+
+- Reorganized application modules into the `bullet_journal` Python package
+- Converted internal application imports to package-relative imports
+- Reduced top-level `main.py` and `gui.py` to thin application launchers
+- Updated project metadata for versioned Python packaging
+- Configured setuptools to package only the `bullet_journal` application package
+- Journal storage no longer depends on the current working directory
+- Journal files are now stored in operating-system-appropriate application data directories
+- Updated README with wheel installation, cross-platform builds, data locations and export documentation
+- Expanded automated test coverage from 114 tests to 125 tests
+
+### Distribution
+
+- macOS builds produce a standalone `.app` bundle
+- Windows builds produce a standalone `.exe`
+- Linux builds produce a standalone executable
+- Python distributions produce a `py3-none-any` wheel
+- The same application source and Markdown journal format are shared across all supported operating systems
+- Current macOS development builds remain unsigned and unnotarized
+
+### Design
+
+- Application logic is now separated from platform-specific launch and distribution concerns
+- Journal data remains local-first, portable and human-readable
+- Operating-system-specific behaviour is isolated in dedicated path and packaging logic
+- Distribution artifacts can be generated automatically from the same source repository
+
+## [1.2.0] - 2026-08-13
+
+### Added
+
+- Installable Python package structure under `bullet_journal`
+- Installed command-line launcher: `bullet-journal`
+- Installed graphical launcher: `bullet-journal-gui`
+- Platform-independent Python wheel distribution
+- PyInstaller-based standalone desktop builds
+- Automated GitHub Actions builds for macOS, Windows and Linux
+- Downloadable build artifacts for all three supported desktop platforms
+- Automated GitHub Release workflow for version tags
+- Platform-specific application data directories
+- Open Journal Folder action in the graphical interface
+- Journal export to ZIP archives
+- Automated tests for platform-specific data paths
+- Automated tests for opening journal directories
+- Automated tests for journal export behaviour
+
+### Changed
+
+- Reorganized application modules into the `bullet_journal` Python package
+- Converted internal application imports to package-relative imports
+- Reduced top-level `main.py` and `gui.py` to thin application launchers
+- Updated project metadata for versioned Python packaging
+- Configured setuptools to package only the `bullet_journal` application package
+- Journal storage no longer depends on the current working directory
+- Journal files are now stored in operating-system-appropriate application data directories
+- Updated README with wheel installation, cross-platform builds, data locations and export documentation
+- Expanded automated test coverage from 114 tests to 125 tests
+
+### Distribution
+
+- macOS builds produce a standalone `.app` bundle
+- Windows builds produce a standalone `.exe`
+- Linux builds produce a standalone executable
+- Python distributions produce a `py3-none-any` wheel
+- The same application source and Markdown journal format are shared across all supported operating systems
+- Current macOS development builds remain unsigned and unnotarized
+
+### Design
+
+- Application logic is now separated from platform-specific launch and distribution concerns
+- Journal data remains local-first, portable and human-readable
+- Operating-system-specific behaviour is isolated in dedicated path and packaging logic
+- Distribution artifacts can be generated automatically from the same source repository
+
 ## [1.1.0] - 2026-08-10
 
 ### Added
