@@ -48,7 +48,7 @@ def main():
     today = date.today()
     filename = f"{today.isoformat()}.md"
 
-    journal_folder = Path("journal")
+    journal_folder = get_journal_directory()
     journal_folder.mkdir(
     parents=True,
     exist_ok=True,
