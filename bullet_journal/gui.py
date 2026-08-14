@@ -5,7 +5,7 @@ from tkinter import (
     simpledialog,
     ttk,
 )
-
+from pathlib import Path
 from datetime import date, timedelta
 
 from .journal_parser import (
@@ -688,6 +688,21 @@ def main(journal_date=None):
         journal_date = date.today()
 
     root = tk.Tk()
+    icon_path = (
+    Path(__file__).resolve().parent.parent
+    / "assets"
+    / "icons"
+    / "bullet-journal.png"
+    )
+
+    if icon_path.exists():
+        app_icon = tk.PhotoImage(
+            file=icon_path
+        )
+        root.iconphoto(
+            True,
+            app_icon,
+        )
     root.title(f"Bullet Journal v{__version__}")
     root.geometry("900x850")
 
