@@ -689,6 +689,36 @@ def main(journal_date=None):
 
     root = tk.Tk()
 
+    menu_bar = tk.Menu(root)
+
+    help_menu = tk.Menu(
+        menu_bar,
+        tearoff=0,
+    )
+
+    help_menu.add_command(
+        label="About Bullet Journal",
+        command=lambda: messagebox.showinfo(
+            "About Bullet Journal",
+            (
+                f"Bullet Journal v{__version__}\n\n"
+                "A local-first journal application "
+                "using human-readable Markdown files.\n\n"
+                "Cross-platform: macOS, Windows and Linux."
+            ),
+            parent=root,
+        ),
+    )
+
+    menu_bar.add_cascade(
+        label="Help",
+        menu=help_menu,
+    )
+
+    root.config(
+        menu=menu_bar,
+    )
+
     icon_path = (
         Path(__file__).resolve().parent.parent
         / "assets"
