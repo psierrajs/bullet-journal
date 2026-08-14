@@ -688,11 +688,12 @@ def main(journal_date=None):
         journal_date = date.today()
 
     root = tk.Tk()
+
     icon_path = (
-    Path(__file__).resolve().parent.parent
-    / "assets"
-    / "icons"
-    / "bullet-journal.png"
+        Path(__file__).resolve().parent.parent
+        / "assets"
+        / "icons"
+        / "bullet-journal.png"
     )
 
     if icon_path.exists():
@@ -703,6 +704,7 @@ def main(journal_date=None):
             True,
             app_icon,
         )
+
     root.title(f"Bullet Journal v{__version__}")
     root.geometry("900x850")
 

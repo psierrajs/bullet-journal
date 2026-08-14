@@ -51,6 +51,7 @@ jobs:
           --windowed
           --onedir
           --icon assets/icons/bullet-journal.icns
+          --add-data "assets/icons/bullet-journal.png:assets/icons"
           gui.py
 
       - name: Build Windows application
@@ -61,6 +62,7 @@ jobs:
           --windowed
           --onefile
           --icon assets/icons/bullet-journal.ico
+          --add-data "assets/icons/bullet-journal.png:assets/icons"
           gui.py
 
       - name: Build Linux application
@@ -70,6 +72,7 @@ jobs:
           --name BulletJournal
           --windowed
           --onefile
+          --add-data "assets/icons/bullet-journal.png:assets/icons"
           gui.py
 
       - name: Archive macOS application

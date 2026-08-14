@@ -7,3 +7,4 @@ journal/
 build/
 dist/
 *.spec
+.DS_Store
