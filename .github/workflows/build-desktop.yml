@@ -50,6 +50,7 @@ jobs:
           --name BulletJournal
           --windowed
           --onedir
+          --icon assets/icons/bullet-journal.icns
           gui.py
 
       - name: Build Windows application
@@ -59,6 +60,7 @@ jobs:
           --name BulletJournal
           --windowed
           --onefile
+          --icon assets/icons/bullet-journal.ico
           gui.py
 
       - name: Build Linux application
