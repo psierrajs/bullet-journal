@@ -1,3 +1,4 @@
+import webbrowser
 import tkinter as tk
 from tkinter import (
     filedialog,
@@ -689,36 +690,6 @@ def main(journal_date=None):
 
     root = tk.Tk()
 
-    menu_bar = tk.Menu(root)
-
-    help_menu = tk.Menu(
-        menu_bar,
-        tearoff=0,
-    )
-
-    help_menu.add_command(
-        label="About Bullet Journal",
-        command=lambda: messagebox.showinfo(
-            "About Bullet Journal",
-            (
-                f"Bullet Journal v{__version__}\n\n"
-                "A local-first journal application "
-                "using human-readable Markdown files.\n\n"
-                "Cross-platform: macOS, Windows and Linux."
-            ),
-            parent=root,
-        ),
-    )
-
-    menu_bar.add_cascade(
-        label="Help",
-        menu=help_menu,
-    )
-
-    root.config(
-        menu=menu_bar,
-    )
-
     icon_path = (
         Path(__file__).resolve().parent.parent
         / "assets"
@@ -734,6 +705,112 @@ def main(journal_date=None):
             True,
             app_icon,
         )
+
+    def show_about():
+        about_window = tk.Toplevel(root)
+        about_window.title("About Bullet Journal")
+        about_window.resizable(False, False)
+        about_window.transient(root)
+
+        if icon_path.exists():
+            about_window.iconphoto(
+                True,
+                app_icon,
+            )
+
+        about_frame = ttk.Frame(
+            about_window,
+            padding=24,
+        )
+        about_frame.pack()
+
+        if icon_path.exists():
+            about_icon = tk.PhotoImage(
+                file=icon_path
+            ).subsample(4, 4)
+
+            icon_label = ttk.Label(
+                about_frame,
+                image=about_icon,
+            )
+            icon_label.image = about_icon
+            icon_label.pack(
+                pady=(0, 12),
+            )
+
+        ttk.Label(
+            about_frame,
+            text=f"Bullet Journal v{__version__}",
+            font=("", 16, "bold"),
+        ).pack(
+            pady=(0, 10),
+        )
+
+        ttk.Label(
+            about_frame,
+            text=(
+                "A local-first journal application "
+                "using human-readable Markdown files."
+            ),
+            wraplength=360,
+            justify="center",
+        ).pack(
+            pady=(0, 8),
+        )
+
+        ttk.Label(
+            about_frame,
+            text="Available for macOS, Windows and Linux.",
+        ).pack(
+            pady=(0, 14),
+        )
+
+        github_link = tk.Label(
+            about_frame,
+            text="View project on GitHub",
+            cursor="hand2",
+            font=("", 12, "underline"),
+        )
+        github_link.pack(
+            pady=(0, 16),
+        )
+
+        github_link.bind(
+            "<Button-1>",
+            lambda event: webbrowser.open(
+                "https://github.com/psierrajs/bullet-journal"
+            ),
+        )
+
+        ttk.Button(
+            about_frame,
+            text="Close",
+            command=about_window.destroy,
+        ).pack()
+
+        about_window.grab_set()
+        about_window.wait_window()
+
+    menu_bar = tk.Menu(root)
+
+    help_menu = tk.Menu(
+        menu_bar,
+        tearoff=0,
+    )
+
+    help_menu.add_command(
+        label="About Bullet Journal",
+        command=show_about,
+    )
+
+    menu_bar.add_cascade(
+        label="Help",
+        menu=help_menu,
+    )
+
+    root.config(
+        menu=menu_bar,
+    )
 
     root.title(f"Bullet Journal v{__version__}")
     root.geometry("900x850")
@@ -751,36 +828,28 @@ def main(journal_date=None):
         "journal_file": journal_file,
     }
 
-    container = ttk.Frame(root)
-    container.pack(
+    canvas = tk.Canvas(
+        root,
+        highlightthickness=0,
+    )
+    canvas.pack(
+        side="left",
         fill="both",
         expand=True,
     )
 
-    canvas = tk.Canvas(
-        container,
-        highlightthickness=0,
-    )
-
     scrollbar = ttk.Scrollbar(
-        container,
+        root,
         orient="vertical",
         command=canvas.yview,
     )
-
-    canvas.configure(
-        yscrollcommand=scrollbar.set,
-    )
-
     scrollbar.pack(
         side="right",
         fill="y",
     )
 
-    canvas.pack(
-        side="left",
-        fill="both",
-        expand=True,
+    canvas.configure(
+        yscrollcommand=scrollbar.set,
     )
 
     main_frame = ttk.Frame(
@@ -1485,6 +1554,7 @@ def main(journal_date=None):
 
 if __name__ == "__main__":
     main()
+
 
 
 
