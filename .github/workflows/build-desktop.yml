@@ -82,12 +82,29 @@ jobs:
           dist/BulletJournal.app
           dist/BulletJournal-macOS.zip
 
+      - name: Create macOS DMG
+        if: runner.os == 'macOS'
+        run: |
+          rm -rf dist/dmg
+          mkdir -p dist/dmg
+          cp -R dist/BulletJournal.app dist/dmg/
+          ln -s /Applications dist/dmg/Applications
+
+          hdiutil create \
+            -volname "Bullet Journal" \
+            -srcfolder dist/dmg \
+            -ov \
+            -format UDZO \
+            dist/BulletJournal-macOS.dmg
+
       - name: Upload macOS build
         if: runner.os == 'macOS'
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
-          path: dist/BulletJournal-macOS.zip
+          path: |
+            dist/BulletJournal-macOS.zip
+            dist/BulletJournal-macOS.dmg
           if-no-files-found: error
 
       - name: Upload Windows build
@@ -130,6 +147,7 @@ jobs:
         run: |
           gh release create "${{ github.ref_name }}" \
             release-artifacts/BulletJournal-macOS/BulletJournal-macOS.zip \
+            release-artifacts/BulletJournal-macOS/BulletJournal-macOS.dmg \
             release-artifacts/BulletJournal-Windows/BulletJournal.exe \
             release-artifacts/BulletJournal-Linux/BulletJournal \
             --verify-tag \
