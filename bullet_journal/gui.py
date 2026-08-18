@@ -966,6 +966,17 @@ def main(journal_date=None):
 
     ttk.Button(
         navigation_frame,
+        text="Reload",
+        command=lambda: load_date(
+            state["date"]
+        ),
+    ).pack(
+        side="left",
+        padx=(0, 8),
+    )
+
+    ttk.Button(
+        navigation_frame,
         text="Next →",
         command=lambda: load_date(
             state["date"] + timedelta(days=1)
