@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [1.2.3] - 2026-08-18
+
+### Added
+
+- Custom application icons for macOS and Windows builds.
+- About dialog with project information and GitHub link.
+- macOS DMG packaging.
+- Automated DMG generation in GitHub Actions releases.
+
+### Changed
+
+- Refined application icon appearance.
+
 ## [1.2.2] - 2026-08-13
 
 ### Fixed
