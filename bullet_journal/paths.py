@@ -59,3 +59,22 @@ def open_journal_directory():
         ["xdg-open", journal_directory],
         check=False,
     )
+
+def open_path(path):
+    path = Path(path)
+
+    if sys.platform == "darwin":
+        subprocess.run(
+            ["open", path],
+            check=False,
+        )
+        return
+
+    if sys.platform == "win32":
+        os.startfile(path)
+        return
+
+    subprocess.run(
+        ["xdg-open", path],
+        check=False,
+    )

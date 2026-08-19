@@ -72,6 +72,7 @@ from .gui_backup_actions import (
 from .paths import (
     get_journal_directory,
     open_journal_directory,
+    open_path,
 )
 
 def load_journal(journal_date):
@@ -1386,6 +1387,20 @@ def main(journal_date=None):
             "Journals exported successfully.",
             parent=root,
         )
+
+    def open_current_journal():
+        journal_file = state["journal_file"]
+
+        if not journal_file.exists():
+            messagebox.showinfo(
+                "Journal not found",
+                "This journal file does not exist yet.",
+                parent=root,
+            )
+            return
+
+        open_path(journal_file)
+
     journal_actions_frame = ttk.LabelFrame(
         main_frame,
         text="Journal Actions",
@@ -1420,12 +1435,22 @@ def main(journal_date=None):
 
     ttk.Button(
         journal_actions_frame,
+        text="Open Current Journal",
+        command=open_current_journal,
+    ).pack(
+        side="left",
+        padx=(8, 0),
+    )
+
+    ttk.Button(
+        journal_actions_frame,
         text="Export Journals",
         command=export_journals_gui,
     ).pack(
         side="left",
         padx=(8, 0),
     )
+
 
     # -------------------------------------------------
     # Date loading
