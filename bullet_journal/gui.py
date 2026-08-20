@@ -1564,6 +1564,11 @@ def main(journal_date=None):
             state["date"] + timedelta(days=1)
         )
 
+    def reload_current_journal(event=None):
+        load_date(
+            state["date"]
+        )
+
     root.bind("<Command-f>", open_search)
     root.bind("<Control-f>", open_search)
 
@@ -1583,6 +1588,16 @@ def main(journal_date=None):
     root.bind(
         "<Control-Right>",
         go_next_day,
+    )
+
+    root.bind(
+        "<Command-r>",
+        reload_current_journal,
+    )
+
+    root.bind(
+        "<Control-r>",
+        reload_current_journal,
     )
 
     root.mainloop()
