@@ -1569,6 +1569,13 @@ def main(journal_date=None):
             state["date"]
         )
 
+    def go_today(event=None):
+        load_date(
+            date.today()
+        )
+
+
+
     root.bind("<Command-f>", open_search)
     root.bind("<Control-f>", open_search)
 
@@ -1598,6 +1605,16 @@ def main(journal_date=None):
     root.bind(
         "<Control-r>",
         reload_current_journal,
+    )
+
+    root.bind(
+        "<Command-t>",
+        go_today,
+    )
+
+    root.bind(
+        "<Control-t>",
+        go_today,
     )
 
     root.mainloop()
