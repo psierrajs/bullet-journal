@@ -800,9 +800,21 @@ def main(journal_date=None):
     )
 
     help_menu.add_command(
-        label="About Bullet Journal",
-        command=show_about,
+        label="Keyboard Shortcuts",
+        command=lambda: messagebox.showinfo(
+            "Keyboard Shortcuts",
+            (
+                "Search: Cmd/Ctrl + F\n"
+                "Reload journal: Cmd/Ctrl + R\n"
+                "Go to today: Cmd/Ctrl + T\n"
+                "Previous day: Cmd/Ctrl + Left\n"
+                "Next day: Cmd/Ctrl + Right"
+            ),
+            parent=root,
+        ),
     )
+
+    help_menu.add_separator()
 
     menu_bar.add_cascade(
         label="Help",
