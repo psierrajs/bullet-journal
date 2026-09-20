@@ -816,6 +816,11 @@ def main(journal_date=None):
 
     help_menu.add_separator()
 
+    help_menu.add_command(
+        label="About Bullet Journal",
+        command=show_about,
+    )
+
     menu_bar.add_cascade(
         label="Help",
         menu=help_menu,
